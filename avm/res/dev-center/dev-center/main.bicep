@@ -78,24 +78,24 @@ var formattedRoleAssignments = [
 // Resources      //
 // ============== //
 
-#disable-next-line no-deployments-resources
-resource avmTelemetry 'Microsoft.Resources/deployments@2024-03-01' = if (enableTelemetry) {
-  name: '46d3xbcp.res-devcenter-devcenter.${replace('-..--..-', '.', '-')}.${substring(uniqueString(deployment().name, location), 0, 4)}'
-  properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-      contentVersion: '1.0.0.0'
-      resources: []
-      outputs: {
-        telemetry: {
-          type: 'String'
-          value: 'For more information, see https://aka.ms/avm/TelemetryInfo'
-        }
-      }
-    }
-  }
-}
+//#disable-next-line no-deployments-resources
+//resource avmTelemetry 'Microsoft.Resources/deployments@2024-03-01' = if (enableTelemetry) {
+//  name: '46d3xbcp.res-devcenter-devcenter.${replace('-..--..-', '.', '-')}.${substring(uniqueString(deployment().name, location), 0, 4)}'
+//  properties: {
+//    mode: 'Incremental'
+//    template: {
+//      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+//      contentVersion: '1.0.0.0'
+//      resources: []
+//      outputs: {
+//        telemetry: {
+//          type: 'String'
+//          value: 'For more information, see https://aka.ms/avm/TelemetryInfo'
+//        }
+//      }
+//    }
+//  }
+//}
 
 resource cMKUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = if (!empty(customerManagedKey.?userAssignedIdentityResourceId)) {
   name: last(split(customerManagedKey.?userAssignedIdentityResourceId!, '/'))
@@ -118,8 +118,8 @@ resource cMKKeyVault 'Microsoft.KeyVault/vaults@2024-11-01' existing = if (!empt
 }
 
 resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
-  name: 'string'
-  location: 'string'
+  name: name
+  location: location
   tags: tags
   identity: identity
   properties: {
@@ -192,7 +192,10 @@ output resourceGroupName string = resourceGroup().name
 output location string = devCenter.location
 
 @description('The principal ID of the system assigned identity.')
-output systemAssignedPrincipalId string = devCenter.identity.?principalId ?? ''
+output systemAssignedMIPrincipalId string? = devCenter.?identity.?principalId
+
+@description('The URI of the Dev Center.')
+output devCenterUri string = devCenter.properties.devCenterUri
 
 // ================ //
 // Definitions      //
