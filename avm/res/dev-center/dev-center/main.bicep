@@ -34,6 +34,15 @@ param displayName string?
 @description('Optional. Enable/Disable usage telemetry for module.')
 param enableTelemetry bool = true
 
+@description('Optional. Settings to be used in the provisioning of all Dev Boxes that belong to this dev center.')
+param devBoxProvisioningSettings devBoxProvisioningSettingsType?
+
+@description('Optional. Network settings that will be enforced on network resources associated with the Dev Center.')
+param networkSettings networkSettingsType?
+
+@description('Optional. Dev Center settings to be used when associating a project with a catalog.')
+param projectCatalogSettings projectCatalogSettingsType?
+
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
   {},
@@ -147,9 +156,7 @@ resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
   tags: tags
   identity: identity
   properties: {
-    devBoxProvisioningSettings: {
-      installAzureMonitorAgentEnableStatus: 'Disabled'
-    }
+    devBoxProvisioningSettings: devBoxProvisioningSettings
     displayName: displayName
     encryption: !empty(customerManagedKey)
       ? {
@@ -170,6 +177,8 @@ resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
           }
         }
       : null
+    networkSettings: networkSettings
+    projectCatalogSettings: projectCatalogSettings
   }
 }
 
@@ -225,3 +234,21 @@ output devCenterUri string = devCenter.properties.devCenterUri
 // ================ //
 // Definitions      //
 // ================ //
+
+@description('The type for Dev Box provisioning settings.')
+type devBoxProvisioningSettingsType = {
+  @description('Optional. Whether project catalogs associated with projects in this dev center can be configured to sync catalog items.')
+  installAzureMonitorAgentEnableStatus: ('Enabled' | 'Disabled')?
+}
+
+@description('The type for network settings.')
+type networkSettingsType = {
+  @description('Optional. Indicates whether pools in this Dev Center can use Microsoft Hosted Networks. Defaults to Enabled if not set.')
+  microsoftHostedNetworkEnableStatus: ('Enabled' | 'Disabled')?
+}
+
+@description('The type for project catalog settings.')
+type projectCatalogSettingsType = {
+  @description('Optional. Whether project catalogs associated with projects in this dev center can be configured to sync catalog items.')
+  catalogItemSyncEnableStatus: ('Enabled' | 'Disabled')?
+}
