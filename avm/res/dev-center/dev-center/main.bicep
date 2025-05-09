@@ -51,6 +51,30 @@ var identity = !empty(managedIdentities)
 
 var builtInRoleNames = {
   Contributor: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+  'DevCenter Project Admin': subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    '331c37c6-af14-46d9-b9f4-e1909e1b95a0'
+  )
+  'DevCenter Dev Box User': subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    '45d50f46-0b78-4001-a660-4198cbe8cd05'
+  )
+  'DevTest Labs User': subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    '76283e04-6283-4c54-8f91-bcf1374a3c64'
+  )
+  'Deployment Environments User': subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    '18e40d4e-8d2e-438d-97e1-9528336e149c'
+  )
+  'Deployment Environments Reader': subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    'eb960402-bf75-4cc3-8d68-35b34f960f72'
+  )
+  'Network Contributor': subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    '4d97b98b-1d4f-4787-a291-c67834d212e7'
+  )
   Owner: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
   Reader: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
   'Role Based Access Control Administrator': subscriptionResourceId(
@@ -123,28 +147,29 @@ resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
   tags: tags
   identity: identity
   properties: {
+    devBoxProvisioningSettings: {
+      installAzureMonitorAgentEnableStatus: 'Disabled'
+    }
     displayName: displayName
-    ...(!empty(customerManagedKey)
+    encryption: !empty(customerManagedKey)
       ? {
-          encryption: {
-            customerManagedKeyEncryption: {
-              keyEncryptionKeyIdentity: {
-                userAssignedIdentityResourceId: !empty(customerManagedKey.?userAssignedIdentityResourceId)
-                  ? cMKUserAssignedIdentity.id
-                  : null
-                identityType: !empty(customerManagedKey.?userAssignedIdentityResourceId)
-                  ? 'userAssignedIdentity'
-                  : 'systemAssignedIdentity'
-              }
-              keyEncryptionKeyUrl: !empty(customerManagedKey.?keyVersion ?? '')
-                ? '${cMKKeyVault::cMKKey.properties.keyUri}/${customerManagedKey!.?keyVersion}'
-                : (customerManagedKey.?autoRotationEnabled ?? true)
-                    ? cMKKeyVault::cMKKey.properties.keyUri
-                    : cMKKeyVault::cMKKey.properties.keyUriWithVersion
+          customerManagedKeyEncryption: {
+            keyEncryptionKeyIdentity: {
+              userAssignedIdentityResourceId: !empty(customerManagedKey.?userAssignedIdentityResourceId)
+                ? cMKUserAssignedIdentity.id
+                : null
+              identityType: !empty(customerManagedKey.?userAssignedIdentityResourceId)
+                ? 'userAssignedIdentity'
+                : 'systemAssignedIdentity'
             }
+            keyEncryptionKeyUrl: !empty(customerManagedKey.?keyVersion ?? '')
+              ? '${cMKKeyVault::cMKKey.properties.keyUri}/${customerManagedKey!.?keyVersion}'
+              : (customerManagedKey.?autoRotationEnabled ?? true)
+                  ? cMKKeyVault::cMKKey.properties.keyUri
+                  : cMKKeyVault::cMKKey.properties.keyUriWithVersion
           }
         }
-      : {})
+      : null
   }
 }
 
