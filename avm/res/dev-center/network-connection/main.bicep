@@ -120,3 +120,11 @@ resource devCenter_roleAssignments 'Microsoft.Authorization/roleAssignments@2022
     scope: networkConnection
   }
 ]
+
+// ============ //
+// Outputs      //
+// ============ //
+
+// ================ //
+// Definitions      //
+// ================ //
