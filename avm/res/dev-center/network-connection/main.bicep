@@ -1,9 +1,9 @@
 metadata name = 'Dev Center Network Connection'
 metadata description = 'This module deploys an Azure Dev Center Network Connection.'
 
-@description('Required. Name of the Dev Center.')
+@description('Required. Name of the Dev Center Network Connection.')
 @minLength(3)
-@maxLength(26)
+@maxLength(63)
 param name string
 
 @description('Optional. Location for all Resources.')
@@ -11,6 +11,33 @@ param location string = resourceGroup().location
 
 @description('Optional. Tags of the resource.')
 param tags object?
+
+@description('Optional. AAD Join type for the network connection.')
+@allowed([
+  'AzureADJoin'
+  'HybridAzureADJoin'
+  'None'
+])
+param domainJoinType string = 'None'
+
+@description('Required. The subnet to attach Virtual Machines to.')
+param subnetResourceId string
+
+@description('Conditional. Active Directory domain name. Required if domainJoinType is "HybridAzureADJoin"".')
+param domainName string?
+
+@description('Conditional. The password for the account used to join the domain. Required if domainJoinType is "HybridAzureADJoin".')
+@secure()
+param domainPassword string?
+
+@description('Conditional. The username of an Active Directory account (user or service account) that has permissions to create computer objects in Active Directory. Required format: admin@contoso.com. Required if domainJoinType is "HybridAzureADJoin".')
+param domainUsername string?
+
+@description('Conditional. Active Directory domain Organization Unit (OU). Required if domainJoinType is "HybridAzureADJoin".')
+param organizationUnit string?
+
+@description('Optional. The name for the resource group where NICs will be placed. If not provided, a new resource group will be created. The default name will be "NI_networkConnectionName_region" (e.g. "NI_myNetworkConnection_eastus"). It will also contain a health check Network Interface (NIC) resource for the network connection. This NIC name will be "nic-CPC-Hth-<randomString>_<date>" (e.g. "nic-CPC-Hth-12345678_2023-10-01").')
+param networkingResourceGroupName string?
 
 import { lockType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
 @description('Optional. The lock settings of the service.')
@@ -76,17 +103,18 @@ var formattedRoleAssignments = [
 //}
 
 resource networkConnection 'Microsoft.DevCenter/networkConnections@2025-02-01' = {
+  // Updated API version
   name: name
   location: location
   tags: tags
   properties: {
-    domainJoinType: 'string'
-    domainName: 'string'
-    domainPassword: 'string'
-    domainUsername: 'string'
-    networkingResourceGroupName: 'string'
-    organizationUnit: 'string'
-    subnetId: 'string'
+    domainJoinType: domainJoinType
+    domainName: domainName
+    domainPassword: domainPassword!
+    domainUsername: domainUsername
+    networkingResourceGroupName: networkingResourceGroupName
+    organizationUnit: organizationUnit
+    subnetId: subnetResourceId
   }
 }
 
@@ -125,6 +153,14 @@ resource devCenter_roleAssignments 'Microsoft.Authorization/roleAssignments@2022
 // Outputs      //
 // ============ //
 
-// ================ //
-// Definitions      //
-// ================ //
+@description('The name of the deployed network connection.')
+output name string = networkConnection.name
+
+@description('The resource ID of the deployed network connection.')
+output resourceId string = networkConnection.id
+
+@description('The name of the resource group the network connection was deployed into.')
+output resourceGroupName string = resourceGroup().name
+
+@description('The location the resource was deployed into.')
+output location string = networkConnection.location
