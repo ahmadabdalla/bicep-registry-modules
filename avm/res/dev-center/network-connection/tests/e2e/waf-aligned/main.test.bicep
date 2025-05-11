@@ -15,7 +15,7 @@ param resourceGroupName string = 'dep-${namePrefix}-devcenter.networkconnection-
 param resourceLocation string = deployment().location
 
 @description('Optional. A short identifier for the kind of deployment. Should be kept short to not run into resource-name length-constraints.')
-param serviceShort string = 'ddncwaf'
+param serviceShort string = 'dcncwaf'
 
 @description('Optional. A token to inject into the name of each resource. This value can be automatically injected by the CI.')
 param namePrefix string = '#_namePrefix_#'
@@ -54,7 +54,7 @@ module testDeployment '../../../main.bicep' = [
       location: resourceLocation
       subnetResourceId: nestedDependencies.outputs.subnetResourceId
       domainJoinType: 'AzureADJoin'
-      networkingResourceGroupName: resourceGroup.name
+      networkingResourceGroupName: 'rg-${namePrefix}${serviceShort}-networking'
     }
   }
 ]

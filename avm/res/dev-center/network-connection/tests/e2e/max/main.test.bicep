@@ -15,7 +15,7 @@ param resourceGroupName string = 'dep-${namePrefix}-devcenter-networkconnection-
 param resourceLocation string = deployment().location
 
 @description('Optional. A short identifier for the kind of deployment. Should be kept short to not run into resource-name length-constraints.')
-param serviceShort string = 'ddncmax'
+param serviceShort string = 'dcncmax'
 
 @description('Optional. A token to inject into the name of each resource. This value can be automatically injected by the CI.')
 param namePrefix string = '#_namePrefix_#'
@@ -71,7 +71,7 @@ module testDeployment '../../../main.bicep' = [
       domainUsername: 'admin@contoso.com'
       domainPassword: guid(password)
       organizationUnit: 'OU=Computers,DC=contoso,DC=com'
-      networkingResourceGroupName: resourceGroup.name
+      networkingResourceGroupName: 'rg-${namePrefix}${serviceShort}-networking'
       roleAssignments: [
         {
           principalId: nestedDependencies.outputs.managedIdentityPrincipalId

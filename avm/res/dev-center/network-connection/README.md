@@ -45,7 +45,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
   name: 'networkConnectionDeployment'
   params: {
     // Required parameters
-    name: 'ddncmin001'
+    name: 'dcncmin001'
     subnetResourceId: '<subnetResourceId>'
     // Non-required parameters
     location: '<location>'
@@ -67,7 +67,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
   "parameters": {
     // Required parameters
     "name": {
-      "value": "ddncmin001"
+      "value": "dcncmin001"
     },
     "subnetResourceId": {
       "value": "<subnetResourceId>"
@@ -91,7 +91,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
 using 'br/public:avm/res/dev-center/network-connection:<version>'
 
 // Required parameters
-param name = 'ddncmin001'
+param name = 'dcncmin001'
 param subnetResourceId = '<subnetResourceId>'
 // Non-required parameters
 param location = '<location>'
@@ -114,7 +114,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
   name: 'networkConnectionDeployment'
   params: {
     // Required parameters
-    name: 'ddncmax001'
+    name: 'dcncmax001'
     subnetResourceId: '<subnetResourceId>'
     // Non-required parameters
     domainJoinType: 'HybridAzureADJoin'
@@ -126,7 +126,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
       kind: 'CanNotDelete'
       name: 'myCustomLockName'
     }
-    networkingResourceGroupName: '<networkingResourceGroupName>'
+    networkingResourceGroupName: 'rg-dcncmax-networking'
     organizationUnit: 'OU=Computers,DC=contoso,DC=com'
     roleAssignments: [
       {
@@ -167,7 +167,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
   "parameters": {
     // Required parameters
     "name": {
-      "value": "ddncmax001"
+      "value": "dcncmax001"
     },
     "subnetResourceId": {
       "value": "<subnetResourceId>"
@@ -195,7 +195,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
       }
     },
     "networkingResourceGroupName": {
-      "value": "<networkingResourceGroupName>"
+      "value": "rg-dcncmax-networking"
     },
     "organizationUnit": {
       "value": "OU=Computers,DC=contoso,DC=com"
@@ -240,7 +240,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
 using 'br/public:avm/res/dev-center/network-connection:<version>'
 
 // Required parameters
-param name = 'ddncmax001'
+param name = 'dcncmax001'
 param subnetResourceId = '<subnetResourceId>'
 // Non-required parameters
 param domainJoinType = 'HybridAzureADJoin'
@@ -252,7 +252,7 @@ param lock = {
   kind: 'CanNotDelete'
   name: 'myCustomLockName'
 }
-param networkingResourceGroupName = '<networkingResourceGroupName>'
+param networkingResourceGroupName = 'rg-dcncmax-networking'
 param organizationUnit = 'OU=Computers,DC=contoso,DC=com'
 param roleAssignments = [
   {
@@ -294,12 +294,12 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
   name: 'networkConnectionDeployment'
   params: {
     // Required parameters
-    name: 'ddncwaf001'
+    name: 'dcncwaf001'
     subnetResourceId: '<subnetResourceId>'
     // Non-required parameters
     domainJoinType: 'AzureADJoin'
     location: '<location>'
-    networkingResourceGroupName: '<networkingResourceGroupName>'
+    networkingResourceGroupName: 'rg-dcncwaf-networking'
   }
 }
 ```
@@ -318,7 +318,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
   "parameters": {
     // Required parameters
     "name": {
-      "value": "ddncwaf001"
+      "value": "dcncwaf001"
     },
     "subnetResourceId": {
       "value": "<subnetResourceId>"
@@ -331,7 +331,7 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
       "value": "<location>"
     },
     "networkingResourceGroupName": {
-      "value": "<networkingResourceGroupName>"
+      "value": "rg-dcncwaf-networking"
     }
   }
 }
@@ -348,12 +348,12 @@ module networkConnection 'br/public:avm/res/dev-center/network-connection:<versi
 using 'br/public:avm/res/dev-center/network-connection:<version>'
 
 // Required parameters
-param name = 'ddncwaf001'
+param name = 'dcncwaf001'
 param subnetResourceId = '<subnetResourceId>'
 // Non-required parameters
 param domainJoinType = 'AzureADJoin'
 param location = '<location>'
-param networkingResourceGroupName = '<networkingResourceGroupName>'
+param networkingResourceGroupName = 'rg-dcncwaf-networking'
 ```
 
 </details>
@@ -385,7 +385,7 @@ param networkingResourceGroupName = '<networkingResourceGroupName>'
 | [`enableTelemetry`](#parameter-enabletelemetry) | bool | Enable/Disable usage telemetry for module. |
 | [`location`](#parameter-location) | string | Location for all Resources. |
 | [`lock`](#parameter-lock) | object | The lock settings of the service. |
-| [`networkingResourceGroupName`](#parameter-networkingresourcegroupname) | string | The name for the resource group where NICs will be placed. If not provided, a new resource group will be created. The default name will be "NI_networkConnectionName_region" (e.g. "NI_myNetworkConnection_eastus"). It will also contain a health check Network Interface (NIC) resource for the network connection. This NIC name will be "nic-CPC-Hth-<randomString>_<date>" (e.g. "nic-CPC-Hth-12345678_2023-10-01"). |
+| [`networkingResourceGroupName`](#parameter-networkingresourcegroupname) | string | The name for the resource group where NICs will be placed. If not provided, the default name "NI_networkConnectionName_region" (e.g. "NI_myNetworkConnection_eastus") will be used. It cannot be an existing resource group. It will also contain a health check Network Interface (NIC) resource for the network connection. This NIC name will be "nic-CPC-Hth-<randomString>_<date>" (e.g. "nic-CPC-Hth-12345678_2023-10-01"). |
 | [`roleAssignments`](#parameter-roleassignments) | array | Array of role assignments to create. |
 | [`tags`](#parameter-tags) | object | Tags of the resource. |
 
@@ -501,7 +501,7 @@ Specify the name of lock.
 
 ### Parameter: `networkingResourceGroupName`
 
-The name for the resource group where NICs will be placed. If not provided, a new resource group will be created. The default name will be "NI_networkConnectionName_region" (e.g. "NI_myNetworkConnection_eastus"). It will also contain a health check Network Interface (NIC) resource for the network connection. This NIC name will be "nic-CPC-Hth-<randomString>_<date>" (e.g. "nic-CPC-Hth-12345678_2023-10-01").
+The name for the resource group where NICs will be placed. If not provided, the default name "NI_networkConnectionName_region" (e.g. "NI_myNetworkConnection_eastus") will be used. It cannot be an existing resource group. It will also contain a health check Network Interface (NIC) resource for the network connection. This NIC name will be "nic-CPC-Hth-<randomString>_<date>" (e.g. "nic-CPC-Hth-12345678_2023-10-01").
 
 - Required: No
 - Type: string
