@@ -61,6 +61,10 @@ module testDeployment '../../../main.bicep' = [
       tags: {
         costCenter: '1234'
       }
+      lock: {
+        kind: 'CanNotDelete'
+        name: 'myCustomLockName'
+      }
       managedIdentities: {
         systemAssigned: true
         userAssignedResourceIds: [
