@@ -158,25 +158,26 @@ resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
   properties: {
     devBoxProvisioningSettings: devBoxProvisioningSettings
     displayName: displayName
-    encryption: !empty(customerManagedKey)
-      ? {
-          customerManagedKeyEncryption: {
-            keyEncryptionKeyIdentity: {
-              userAssignedIdentityResourceId: !empty(customerManagedKey.?userAssignedIdentityResourceId)
-                ? cMKUserAssignedIdentity.id
-                : null
-              identityType: !empty(customerManagedKey.?userAssignedIdentityResourceId)
-                ? 'userAssignedIdentity'
-                : 'systemAssignedIdentity'
-            }
-            keyEncryptionKeyUrl: !empty(customerManagedKey.?keyVersion ?? '')
-              ? '${cMKKeyVault::cMKKey.properties.keyUri}/${customerManagedKey!.?keyVersion}'
-              : (customerManagedKey.?autoRotationEnabled ?? true)
-                  ? cMKKeyVault::cMKKey.properties.keyUri
-                  : cMKKeyVault::cMKKey.properties.keyUriWithVersion
-          }
-        }
-      : null
+    encryption: {}
+    //encryption: !empty(customerManagedKey)
+    //  ? {
+    //      customerManagedKeyEncryption: {
+    //        keyEncryptionKeyIdentity: {
+    //          userAssignedIdentityResourceId: !empty(customerManagedKey.?userAssignedIdentityResourceId)
+    //            ? cMKUserAssignedIdentity.id
+    //            : null
+    //          identityType: !empty(customerManagedKey.?userAssignedIdentityResourceId)
+    //            ? 'userAssignedIdentity'
+    //            : 'systemAssignedIdentity'
+    //        }
+    //        keyEncryptionKeyUrl: !empty(customerManagedKey.?keyVersion ?? '')
+    //          ? '${cMKKeyVault::cMKKey.properties.keyUri}/${customerManagedKey!.?keyVersion}'
+    //          : (customerManagedKey.?autoRotationEnabled ?? true)
+    //              ? cMKKeyVault::cMKKey.properties.keyUri
+    //              : cMKKeyVault::cMKKey.properties.keyUriWithVersion
+    //      }
+    //    }
+    //  : {}
     networkSettings: networkSettings
     projectCatalogSettings: projectCatalogSettings
   }

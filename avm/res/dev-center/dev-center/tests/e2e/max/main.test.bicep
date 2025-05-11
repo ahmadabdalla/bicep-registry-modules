@@ -18,7 +18,7 @@ param resourceLocation string = deployment().location
 param serviceShort string = 'ddcmax'
 
 @description('Generated. Used as a basis for unique resource names.')
-param baseTime string = utcNow('u')
+param baseTime string = 'testa'
 
 @description('Optional. A token to inject into the name of each resource. This value can be automatically injected by the CI.')
 param namePrefix string = '#_namePrefix_#'
@@ -40,7 +40,7 @@ module nestedDependencies 'dependencies.bicep' = {
   name: '${uniqueString(deployment().name, resourceLocation)}-nestedDependencies'
   params: {
     // Adding base time to make the name unique as purge protection must be enabled (but may not be longer than 24 characters total)
-    //keyVaultName: 'dep-${namePrefix}-kv-${serviceShort}-${substring(uniqueString(baseTime), 0, 3)}'
+    keyVaultName: 'dep-${namePrefix}-kv-${serviceShort}-${substring(uniqueString(baseTime), 0, 3)}'
     managedIdentityName: 'dep-${namePrefix}-msi-${serviceShort}'
     location: resourceLocation
   }
@@ -88,11 +88,11 @@ module testDeployment '../../../main.bicep' = [
           principalType: 'ServicePrincipal'
         }
       ]
-      //customerManagedKey: {
-      //  keyName: nestedDependencies.outputs.keyVaultKeyName
-      //  keyVaultResourceId: nestedDependencies.outputs.keyVaultResourceId
-      //  userAssignedIdentityResourceId: nestedDependencies.outputs.managedIdentityResourceId
-      //}
+      customerManagedKey: {
+        keyName: nestedDependencies.outputs.keyVaultKeyName
+        keyVaultResourceId: nestedDependencies.outputs.keyVaultResourceId
+        userAssignedIdentityResourceId: nestedDependencies.outputs.managedIdentityResourceId
+      }
       displayName: 'Dev Center Test'
     }
   }
