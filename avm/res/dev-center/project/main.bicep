@@ -24,6 +24,9 @@ import { managedIdentityAllType } from 'br/public:avm/utl/types/avm-common-types
 @description('Optional. The managed identity definition for this resource.')
 param managedIdentities managedIdentityAllType?
 
+@description('Required. Resource ID of an associated DevCenter.')
+param devCenterResourceId string
+
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
   {},
@@ -93,7 +96,9 @@ resource project 'Microsoft.DevCenter/projects@2025-02-01' = {
   location: location
   identity: identity
   tags: tags
-  //properties: properties
+  properties: {
+    devCenterId: devCenterResourceId
+  }
 }
 
 resource project_lock 'Microsoft.Authorization/locks@2020-05-01' = if (!empty(lock ?? {}) && lock.?kind != 'None') {
@@ -122,6 +127,25 @@ resource project_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
     scope: project
   }
 ]
+
+// ============ //
+// Outputs      //
+// ============ //
+
+@description('The name of the Dev Center Project.')
+output name string = project.name
+
+@description('The resource ID of the Dev Center Project.')
+output resourceId string = project.id
+
+@description('The name of the resource group the Dev Center Project resource was deployed into.')
+output resourceGroupName string = resourceGroup().name
+
+@description('The location the Dev Center Project resource was deployed into.')
+output location string = project.location
+
+@description('The principal ID of the system assigned identity.')
+output systemAssignedMIPrincipalId string? = project.?identity.?principalId
 
 // ================ //
 // Definitions      //
