@@ -1,30 +1,36 @@
 metadata name = 'Dev Center Project'
 metadata description = 'This module deploys a Dev Center Project.'
 
-@description('Required. The name of the project.')
+@sys.description('Required. The name of the project.')
 @minLength(3)
 @maxLength(63)
 param name string
 
-@description('Optional. Location for all Resources.')
+@sys.description('Optional. The display name of project.')
+param displayName string?
+
+@sys.description('Optional. The description of the project.')
+param description string?
+
+@sys.description('Optional. Location for all Resources.')
 param location string = resourceGroup().location
 
-@description('Optional. Resource tags to apply to the project.')
+@sys.description('Optional. Resource tags to apply to the project.')
 param tags object?
 
 import { lockType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
-@description('Optional. The lock settings of the service.')
+@sys.description('Optional. The lock settings of the service.')
 param lock lockType?
 
 import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
-@description('Optional. Array of role assignments to create.')
+@sys.description('Optional. Array of role assignments to create.')
 param roleAssignments roleAssignmentType[]?
 
 import { managedIdentityAllType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
-@description('Optional. The managed identity definition for this resource.')
+@sys.description('Optional. The managed identity definition for this resource.')
 param managedIdentities managedIdentityAllType?
 
-@description('Required. Resource ID of an associated DevCenter.')
+@sys.description('Required. Resource ID of an associated DevCenter.')
 param devCenterResourceId string
 
 var formattedUserAssignedIdentities = reduce(
@@ -98,6 +104,8 @@ resource project 'Microsoft.DevCenter/projects@2025-02-01' = {
   tags: tags
   properties: {
     devCenterId: devCenterResourceId
+    displayName: displayName
+    description: description
   }
 }
 
@@ -132,19 +140,19 @@ resource project_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 // Outputs      //
 // ============ //
 
-@description('The name of the Dev Center Project.')
+@sys.description('The name of the Dev Center Project.')
 output name string = project.name
 
-@description('The resource ID of the Dev Center Project.')
+@sys.description('The resource ID of the Dev Center Project.')
 output resourceId string = project.id
 
-@description('The name of the resource group the Dev Center Project resource was deployed into.')
+@sys.description('The name of the resource group the Dev Center Project resource was deployed into.')
 output resourceGroupName string = resourceGroup().name
 
-@description('The location the Dev Center Project resource was deployed into.')
+@sys.description('The location the Dev Center Project resource was deployed into.')
 output location string = project.location
 
-@description('The principal ID of the system assigned identity.')
+@sys.description('The principal ID of the system assigned identity.')
 output systemAssignedMIPrincipalId string? = project.?identity.?principalId
 
 // ================ //
@@ -152,103 +160,103 @@ output systemAssignedMIPrincipalId string? = project.?identity.?principalId
 // ================ //
 
 @export()
-@description('Managed identity properties for the project.')
+@sys.description('Managed identity properties for the project.')
 type managedServiceIdentityType = {
-  @description('Required. Type of managed service identity. Allowed values: None, SystemAssigned, UserAssigned, SystemAssigned, UserAssigned.')
+  @sys.description('Required. Type of managed service identity. Allowed values: None, SystemAssigned, UserAssigned, SystemAssigned, UserAssigned.')
   type: 'None' | 'SystemAssigned' | 'UserAssigned' | 'SystemAssigned, UserAssigned'
-  @description('Optional. The set of user assigned identities associated with the resource. The dictionary keys will be ARM resource ids.')
+  @sys.description('Optional. The set of user assigned identities associated with the resource. The dictionary keys will be ARM resource ids.')
   userAssignedIdentities: object
 }
 
 @export()
-@description('Properties of a Dev Center Project.')
+@sys.description('Properties of a Dev Center Project.')
 type projectPropertiesType = {
-  @description('Optional. Indicates whether Azure AI services are enabled for a project.')
+  @sys.description('Optional. Indicates whether Azure AI services are enabled for a project.')
   azureAiServicesSettings: azureAiServicesSettingsType?
 
-  @description('Optional. Settings to be used when associating a project with a catalog.')
+  @sys.description('Optional. Settings to be used when associating a project with a catalog.')
   catalogSettings: projectCatalogSettingsType?
 
-  @description('Optional. Settings to be used for customizations.')
+  @sys.description('Optional. Settings to be used for customizations.')
   customizationSettings: projectCustomizationSettingsType?
 
-  @description('Optional. Description of the project.')
+  @sys.description('Optional. Description of the project.')
   description: string?
 
-  @description('Optional. Dev Box Auto Delete settings.')
+  @sys.description('Optional. Dev Box Auto Delete settings.')
   devBoxAutoDeleteSettings: devBoxAutoDeleteSettingsType?
 
-  @description('Required. Resource Id of an associated DevCenter.')
+  @sys.description('Required. Resource Id of an associated DevCenter.')
   devCenterId: string
 
-  @description('Optional. The display name of the project.')
+  @sys.description('Optional. The display name of the project.')
   displayName: string?
 
-  @description('Optional. When specified, limits the maximum number of Dev Boxes a single user can create across all pools in the project. Min value: 0.')
+  @sys.description('Optional. When specified, limits the maximum number of Dev Boxes a single user can create across all pools in the project. Min value: 0.')
   maxDevBoxesPerUser: int?
 
-  @description('Optional. Settings to be used for serverless GPU.')
+  @sys.description('Optional. Settings to be used for serverless GPU.')
   serverlessGpuSessionsSettings: serverlessGpuSessionsSettingsType?
 
-  @description('Optional. Settings to be used for workspace storage.')
+  @sys.description('Optional. Settings to be used for workspace storage.')
   workspaceStorageSettings: workspaceStorageSettingsType?
 }
 
 @export()
-@description('Indicates whether Azure AI services are enabled for a project.')
+@sys.description('Indicates whether Azure AI services are enabled for a project.')
 type azureAiServicesSettingsType = {
-  @description('Required. The property indicates whether Azure AI services is enabled. Allowed values: AutoDeploy, Disabled.')
+  @sys.description('Required. The property indicates whether Azure AI services is enabled. Allowed values: AutoDeploy, Disabled.')
   azureAiServicesMode: 'AutoDeploy' | 'Disabled'
 }
 
 @export()
-@description('Settings to be used when associating a project with a catalog.')
+@sys.description('Settings to be used when associating a project with a catalog.')
 type projectCatalogSettingsType = {
-  @description('Optional. Indicates catalog item types that can be synced. Allowed values: EnvironmentDefinition, ImageDefinition.')
+  @sys.description('Optional. Indicates catalog item types that can be synced. Allowed values: EnvironmentDefinition, ImageDefinition.')
   catalogItemSyncTypes: ('EnvironmentDefinition' | 'ImageDefinition')[]?
 }
 
 @export()
-@description('Settings to be used for customizations.')
+@sys.description('Settings to be used for customizations.')
 type projectCustomizationSettingsType = {
-  @description('Optional. The identities that can be used in customization scenarios; e.g., to clone a repository.')
+  @sys.description('Optional. The identities that can be used in customization scenarios; e.g., to clone a repository.')
   identities: projectCustomizationManagedIdentityType[]?
-  @description('Optional. Indicates whether user customizations are enabled. Allowed values: Enabled, Disabled.')
+  @sys.description('Optional. Indicates whether user customizations are enabled. Allowed values: Enabled, Disabled.')
   userCustomizationsEnableStatus: 'Enabled' | 'Disabled'?
 }
 
 @export()
-@description('A managed identity for project customization.')
+@sys.description('A managed identity for project customization.')
 type projectCustomizationManagedIdentityType = {
-  @description('Required. Resource ID of the managed identity.')
+  @sys.description('Required. Resource ID of the managed identity.')
   identityResourceId: string
-  @description('Required. Type of the managed identity. Allowed values: systemAssignedIdentity, userAssignedIdentity.')
+  @sys.description('Required. Type of the managed identity. Allowed values: systemAssignedIdentity, userAssignedIdentity.')
   identityType: 'systemAssignedIdentity' | 'userAssignedIdentity'
 }
 
 @export()
-@description('Dev Box Auto Delete settings.')
+@sys.description('Dev Box Auto Delete settings.')
 type devBoxAutoDeleteSettingsType = {
-  @description('Required. Indicates the delete mode for Dev Boxes within this project. Allowed values: Auto, Manual.')
+  @sys.description('Required. Indicates the delete mode for Dev Boxes within this project. Allowed values: Auto, Manual.')
   deleteMode: 'Auto' | 'Manual'
-  @description('Required. ISO8601 duration required for the dev box to be marked for deletion prior to it being deleted. Format: PT[n]H[n]M[n]S.')
+  @sys.description('Required. ISO8601 duration required for the dev box to be marked for deletion prior to it being deleted. Format: PT[n]H[n]M[n]S.')
   gracePeriod: string
-  @description('Required. ISO8601 duration required for the dev box to not be inactive prior to it being scheduled for deletion. Format: PT[n]H[n]M[n]S.')
+  @sys.description('Required. ISO8601 duration required for the dev box to not be inactive prior to it being scheduled for deletion. Format: PT[n]H[n]M[n]S.')
   inactiveThreshold: string
 }
 
 @export()
-@description('Settings to be used for serverless GPU.')
+@sys.description('Settings to be used for serverless GPU.')
 type serverlessGpuSessionsSettingsType = {
-  @description('Optional. When specified, limits the maximum number of concurrent sessions across all pools in the project. Min value: 1.')
+  @sys.description('Optional. When specified, limits the maximum number of concurrent sessions across all pools in the project. Min value: 1.')
   maxConcurrentSessionsPerProject: int?
-  @description('Required. The property indicates whether serverless GPU access is enabled on the project. Allowed values: AutoDeploy, Disabled.')
+  @sys.description('Required. The property indicates whether serverless GPU access is enabled on the project. Allowed values: AutoDeploy, Disabled.')
   serverlessGpuSessionsMode: 'AutoDeploy' | 'Disabled'
 }
 
 @export()
-@description('Settings to be used for workspace storage.')
+@sys.description('Settings to be used for workspace storage.')
 type workspaceStorageSettingsType = {
-  @description('Required. Indicates whether workspace storage is enabled. Allowed values: AutoDeploy, Disabled.')
+  @sys.description('Required. Indicates whether workspace storage is enabled. Allowed values: AutoDeploy, Disabled.')
   workspaceStorageMode: 'AutoDeploy' | 'Disabled'
 }

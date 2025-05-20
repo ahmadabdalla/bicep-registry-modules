@@ -52,6 +52,8 @@ module testDeployment '../../../main.bicep' = [
     name: '${uniqueString(deployment().name, enforcedLocation)}-test-${serviceShort}-${iteration}'
     params: {
       name: '${namePrefix}${serviceShort}001'
+      displayName: 'My Dev Center Project'
+      description: 'This is a test project for the Dev Center project module.'
       devCenterResourceId: nestedDependencies.outputs.devCenterResourceId
       managedIdentities: {
         systemAssigned: true
