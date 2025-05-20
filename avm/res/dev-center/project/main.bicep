@@ -114,15 +114,15 @@ resource project_lock 'Microsoft.Authorization/locks@2020-05-01' = if (!empty(lo
 
 resource project_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   for (roleAssignment, index) in (formattedRoleAssignments ?? []): {
-    name: roleAssignment.name ?? guid(project.id, roleAssignment.principalId, roleAssignment.roleDefinitionId)
+    name: roleAssignment.?name ?? guid(project.id, roleAssignment.principalId, roleAssignment.roleDefinitionId)
     properties: {
       roleDefinitionId: roleAssignment.roleDefinitionId
       principalId: roleAssignment.principalId
-      description: roleAssignment.description
-      principalType: roleAssignment.principalType
-      condition: roleAssignment.condition
-      conditionVersion: !empty(roleAssignment.condition) ? (roleAssignment.conditionVersion ?? '2.0') : null
-      delegatedManagedIdentityResourceId: roleAssignment.delegatedManagedIdentityResourceId
+      description: roleAssignment.?description
+      principalType: roleAssignment.?principalType
+      condition: roleAssignment.?condition
+      conditionVersion: !empty(roleAssignment.?condition) ? (roleAssignment.?conditionVersion ?? '2.0') : null // Must only be set if condtion is set
+      delegatedManagedIdentityResourceId: roleAssignment.?delegatedManagedIdentityResourceId
     }
     scope: project
   }
