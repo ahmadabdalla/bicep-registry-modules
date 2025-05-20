@@ -15,6 +15,11 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
 resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
   name: devCenterName
   location: location
+  properties: {
+    projectCatalogSettings: {
+      catalogItemSyncEnableStatus: 'Enabled'
+    }
+  }
 }
 
 @description('The resource ID of the created DevCenter.')

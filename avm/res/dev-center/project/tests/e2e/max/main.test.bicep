@@ -73,7 +73,7 @@ module testDeployment '../../../main.bicep' = [
       roleAssignments: [
         {
           principalId: nestedDependencies.outputs.managedIdentityPrincipalId
-          roleDefinitionIdOrName: 'Network Contributor'
+          roleDefinitionIdOrName: 'DevCenter Project Admin'
           principalType: 'ServicePrincipal'
         }
         {
@@ -91,6 +91,12 @@ module testDeployment '../../../main.bicep' = [
           principalType: 'ServicePrincipal'
         }
       ]
+      catalogSettings: {
+        catalogItemSyncTypes: [
+          'EnvironmentDefinition'
+          'ImageDefinition'
+        ]
+      }
     }
   }
 ]

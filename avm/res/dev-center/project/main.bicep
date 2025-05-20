@@ -33,6 +33,9 @@ param managedIdentities managedIdentityAllType?
 @sys.description('Required. Resource ID of an associated DevCenter.')
 param devCenterResourceId string
 
+@sys.description('Optional. The settings to be used when associating a project with a catalog. The Dev Center this project is associated with must allow configuring catalog item sync types before configuring project level catalog settings.')
+param catalogSettings catalogSettingsType?
+
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
   {},
@@ -70,10 +73,6 @@ var builtInRoleNames = {
     'Microsoft.Authorization/roleDefinitions',
     'eb960402-bf75-4cc3-8d68-35b34f960f72'
   )
-  'Network Contributor': subscriptionResourceId(
-    'Microsoft.Authorization/roleDefinitions',
-    '4d97b98b-1d4f-4787-a291-c67834d212e7'
-  )
   Owner: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
   Reader: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
   'Role Based Access Control Administrator': subscriptionResourceId(
@@ -103,9 +102,10 @@ resource project 'Microsoft.DevCenter/projects@2025-02-01' = {
   identity: identity
   tags: tags
   properties: {
+    description: description
     devCenterId: devCenterResourceId
     displayName: displayName
-    description: description
+    catalogSettings: catalogSettings
   }
 }
 
@@ -169,40 +169,6 @@ type managedServiceIdentityType = {
 }
 
 @export()
-@sys.description('Properties of a Dev Center Project.')
-type projectPropertiesType = {
-  @sys.description('Optional. Indicates whether Azure AI services are enabled for a project.')
-  azureAiServicesSettings: azureAiServicesSettingsType?
-
-  @sys.description('Optional. Settings to be used when associating a project with a catalog.')
-  catalogSettings: projectCatalogSettingsType?
-
-  @sys.description('Optional. Settings to be used for customizations.')
-  customizationSettings: projectCustomizationSettingsType?
-
-  @sys.description('Optional. Description of the project.')
-  description: string?
-
-  @sys.description('Optional. Dev Box Auto Delete settings.')
-  devBoxAutoDeleteSettings: devBoxAutoDeleteSettingsType?
-
-  @sys.description('Required. Resource Id of an associated DevCenter.')
-  devCenterId: string
-
-  @sys.description('Optional. The display name of the project.')
-  displayName: string?
-
-  @sys.description('Optional. When specified, limits the maximum number of Dev Boxes a single user can create across all pools in the project. Min value: 0.')
-  maxDevBoxesPerUser: int?
-
-  @sys.description('Optional. Settings to be used for serverless GPU.')
-  serverlessGpuSessionsSettings: serverlessGpuSessionsSettingsType?
-
-  @sys.description('Optional. Settings to be used for workspace storage.')
-  workspaceStorageSettings: workspaceStorageSettingsType?
-}
-
-@export()
 @sys.description('Indicates whether Azure AI services are enabled for a project.')
 type azureAiServicesSettingsType = {
   @sys.description('Required. The property indicates whether Azure AI services is enabled. Allowed values: AutoDeploy, Disabled.')
@@ -211,7 +177,7 @@ type azureAiServicesSettingsType = {
 
 @export()
 @sys.description('Settings to be used when associating a project with a catalog.')
-type projectCatalogSettingsType = {
+type catalogSettingsType = {
   @sys.description('Optional. Indicates catalog item types that can be synced. Allowed values: EnvironmentDefinition, ImageDefinition.')
   catalogItemSyncTypes: ('EnvironmentDefinition' | 'ImageDefinition')[]?
 }
