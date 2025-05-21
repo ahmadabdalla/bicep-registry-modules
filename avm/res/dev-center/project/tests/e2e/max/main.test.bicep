@@ -97,6 +97,7 @@ module testDeployment '../../../main.bicep' = [
           'ImageDefinition'
         ]
       }
+      maxDevBoxesPerUser: 2
     }
   }
 ]

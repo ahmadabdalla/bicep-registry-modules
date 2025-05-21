@@ -36,6 +36,10 @@ param devCenterResourceId string
 @sys.description('Optional. The settings to be used when associating a project with a catalog. The Dev Center this project is associated with must allow configuring catalog item sync types before configuring project level catalog settings.')
 param catalogSettings catalogSettingsType?
 
+@sys.description('Optional. When specified, limits the maximum number of Dev Boxes a single user can create across all pools in the project. This will have no effect on existing Dev Boxes when reduced.')
+@minValue(0)
+param maxDevBoxesPerUser int?
+
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
   {},
@@ -106,6 +110,7 @@ resource project 'Microsoft.DevCenter/projects@2025-02-01' = {
     devCenterId: devCenterResourceId
     displayName: displayName
     catalogSettings: catalogSettings
+    maxDevBoxesPerUser: maxDevBoxesPerUser
   }
 }
 
