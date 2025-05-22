@@ -9,17 +9,17 @@ metadata description = 'This instance deploys the module in alignment with the b
 
 @description('Optional. The name of the resource group to deploy for testing purposes.')
 @maxLength(90)
-param resourceGroupName string = 'dep-${namePrefix}-devcenter.networkconnection-${serviceShort}-rg'
+param resourceGroupName string = 'dep-${namePrefix}-devcenter.project-${serviceShort}-rg'
 
 @description('Optional. A short identifier for the kind of deployment. Should be kept short to not run into resource-name length-constraints.')
-param serviceShort string = 'dcncwaf'
+param serviceShort string = 'dcpwaf'
 
 @description('Optional. A token to inject into the name of each resource. This value can be automatically injected by the CI.')
 param namePrefix string = '#_namePrefix_#'
 
 // Hardcoded because service not available in all regions
 #disable-next-line no-hardcoded-location
-var enforcedLocation = 'australiaeast'
+var enforcedLocation = 'westeurope'
 
 // ============ //
 // Dependencies //
@@ -36,7 +36,8 @@ module nestedDependencies 'dependencies.bicep' = {
   scope: resourceGroup
   name: '${uniqueString(deployment().name, enforcedLocation)}-nestedDependencies'
   params: {
-    virtualNetworkName: 'dep-${namePrefix}-vnet-${serviceShort}'
+    devCenterName: 'dep-${namePrefix}-dc-${serviceShort}'
+    managedIdentityName: 'dep-${namePrefix}-msi-${serviceShort}'
   }
 }
 
@@ -51,9 +52,13 @@ module testDeployment '../../../main.bicep' = [
     name: '${uniqueString(deployment().name, enforcedLocation)}-test-${serviceShort}-${iteration}'
     params: {
       name: '${namePrefix}${serviceShort}001'
-      subnetResourceId: nestedDependencies.outputs.subnetResourceId
-      domainJoinType: 'AzureADJoin'
-      networkingResourceGroupName: 'rg-${namePrefix}${serviceShort}-networking'
+      devCenterResourceId: nestedDependencies.outputs.devCenterResourceId
+      managedIdentities: {
+        userAssignedResourceIds: [
+          nestedDependencies.outputs.managedIdentityResourceId
+        ]
+      }
+      maxDevBoxesPerUser: 2
     }
   }
 ]

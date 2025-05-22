@@ -40,6 +40,9 @@ param catalogSettings catalogSettingsType?
 @minValue(0)
 param maxDevBoxesPerUser int?
 
+@sys.description('Optional. Enable/Disable usage telemetry for module.')
+param enableTelemetry bool = true
+
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
   {},
@@ -99,6 +102,29 @@ var formattedRoleAssignments = [
       : subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleAssignment.roleDefinitionIdOrName))
   })
 ]
+
+// ============== //
+// Resources      //
+// ============== //
+
+#disable-next-line no-deployments-resources
+resource avmTelemetry 'Microsoft.Resources/deployments@2024-03-01' = if (enableTelemetry) {
+  name: '46d3xbcp.res-devcenter-project.${replace('-..--..-', '.', '-')}.${substring(uniqueString(deployment().name, location), 0, 4)}'
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      resources: []
+      outputs: {
+        telemetry: {
+          type: 'String'
+          value: 'For more information, see https://aka.ms/avm/TelemetryInfo'
+        }
+      }
+    }
+  }
+}
 
 resource project 'Microsoft.DevCenter/projects@2025-02-01' = {
   name: name
@@ -165,69 +191,8 @@ output systemAssignedMIPrincipalId string? = project.?identity.?principalId
 // ================ //
 
 @export()
-@sys.description('Managed identity properties for the project.')
-type managedServiceIdentityType = {
-  @sys.description('Required. Type of managed service identity. Allowed values: None, SystemAssigned, UserAssigned, SystemAssigned, UserAssigned.')
-  type: 'None' | 'SystemAssigned' | 'UserAssigned' | 'SystemAssigned, UserAssigned'
-  @sys.description('Optional. The set of user assigned identities associated with the resource. The dictionary keys will be ARM resource ids.')
-  userAssignedIdentities: object
-}
-
-@export()
-@sys.description('Indicates whether Azure AI services are enabled for a project.')
-type azureAiServicesSettingsType = {
-  @sys.description('Required. The property indicates whether Azure AI services is enabled. Allowed values: AutoDeploy, Disabled.')
-  azureAiServicesMode: 'AutoDeploy' | 'Disabled'
-}
-
-@export()
 @sys.description('Settings to be used when associating a project with a catalog.')
 type catalogSettingsType = {
-  @sys.description('Optional. Indicates catalog item types that can be synced. Allowed values: EnvironmentDefinition, ImageDefinition.')
+  @sys.description('Optional. Indicates catalog item types that can be synced.')
   catalogItemSyncTypes: ('EnvironmentDefinition' | 'ImageDefinition')[]?
-}
-
-@export()
-@sys.description('Settings to be used for customizations.')
-type projectCustomizationSettingsType = {
-  @sys.description('Optional. The identities that can be used in customization scenarios; e.g., to clone a repository.')
-  identities: projectCustomizationManagedIdentityType[]?
-  @sys.description('Optional. Indicates whether user customizations are enabled. Allowed values: Enabled, Disabled.')
-  userCustomizationsEnableStatus: 'Enabled' | 'Disabled'?
-}
-
-@export()
-@sys.description('A managed identity for project customization.')
-type projectCustomizationManagedIdentityType = {
-  @sys.description('Required. Resource ID of the managed identity.')
-  identityResourceId: string
-  @sys.description('Required. Type of the managed identity. Allowed values: systemAssignedIdentity, userAssignedIdentity.')
-  identityType: 'systemAssignedIdentity' | 'userAssignedIdentity'
-}
-
-@export()
-@sys.description('Dev Box Auto Delete settings.')
-type devBoxAutoDeleteSettingsType = {
-  @sys.description('Required. Indicates the delete mode for Dev Boxes within this project. Allowed values: Auto, Manual.')
-  deleteMode: 'Auto' | 'Manual'
-  @sys.description('Required. ISO8601 duration required for the dev box to be marked for deletion prior to it being deleted. Format: PT[n]H[n]M[n]S.')
-  gracePeriod: string
-  @sys.description('Required. ISO8601 duration required for the dev box to not be inactive prior to it being scheduled for deletion. Format: PT[n]H[n]M[n]S.')
-  inactiveThreshold: string
-}
-
-@export()
-@sys.description('Settings to be used for serverless GPU.')
-type serverlessGpuSessionsSettingsType = {
-  @sys.description('Optional. When specified, limits the maximum number of concurrent sessions across all pools in the project. Min value: 1.')
-  maxConcurrentSessionsPerProject: int?
-  @sys.description('Required. The property indicates whether serverless GPU access is enabled on the project. Allowed values: AutoDeploy, Disabled.')
-  serverlessGpuSessionsMode: 'AutoDeploy' | 'Disabled'
-}
-
-@export()
-@sys.description('Settings to be used for workspace storage.')
-type workspaceStorageSettingsType = {
-  @sys.description('Required. Indicates whether workspace storage is enabled. Allowed values: AutoDeploy, Disabled.')
-  workspaceStorageMode: 'AutoDeploy' | 'Disabled'
 }
