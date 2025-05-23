@@ -19,7 +19,7 @@ param namePrefix string = '#_namePrefix_#'
 
 // Hardcoded because service not available in all regions
 #disable-next-line no-hardcoded-location
-var enforcedLocation = 'australiaeast'
+var enforcedLocation = 'westeurope'
 
 // ============ //
 // Dependencies //
@@ -37,6 +37,7 @@ module nestedDependencies 'dependencies.bicep' = {
   name: '${uniqueString(deployment().name, enforcedLocation)}-nestedDependencies'
   params: {
     devCenterName: 'dep-${namePrefix}-dc-${serviceShort}'
+    environmentTypeName: 'dep-${namePrefix}-et-${serviceShort}'
     managedIdentityName: 'dep-${namePrefix}-msi-${serviceShort}'
   }
 }
@@ -98,6 +99,30 @@ module testDeployment '../../../main.bicep' = [
         ]
       }
       maxDevBoxesPerUser: 2
+      environmentTypes: [
+        {
+          creatorRoleAssignment: {
+            roles: {
+              'acdd72a7-3385-48ef-bd42-f606fba81ae7': {
+                roleName: 'Reader'
+                description: 'test'
+              } // 'Reader'
+            }
+          }
+          name: 'dep-${namePrefix}-et-${serviceShort}'
+          status: 'Enabled'
+          deploymentTargetSubscriptionResourceId: subscription().id
+          tags: {
+            'prj-type': 'sandbox'
+          }
+          managedIdentities: {
+            systemAssigned: false
+            userAssignedResourceIds: [
+              nestedDependencies.outputs.managedIdentityResourceId
+            ]
+          }
+        }
+      ]
     }
   }
 ]

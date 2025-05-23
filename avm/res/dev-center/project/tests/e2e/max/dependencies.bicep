@@ -1,6 +1,9 @@
 @description('Required. The name of the Dev Center.')
 param devCenterName string
 
+@description('Required. The name of the Dev Center Environment Type to create.')
+param environmentTypeName string
+
 @description('Required. The name of the Managed Identity to create.')
 param managedIdentityName string
 
@@ -19,6 +22,17 @@ resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
     projectCatalogSettings: {
       catalogItemSyncEnableStatus: 'Enabled'
     }
+  }
+}
+
+resource environmentType 'Microsoft.DevCenter/devcenters/environmentTypes@2025-02-01' = {
+  name: environmentTypeName
+  parent: devCenter
+  tags: {
+    env: 'sandbox'
+  }
+  properties: {
+    displayName: 'Sandbox'
   }
 }
 

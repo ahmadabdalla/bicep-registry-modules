@@ -5,7 +5,7 @@ metadata description = 'This module deploys a Dev Center Project Environment Typ
 // Parameters       //
 // ================ //
 
-@sys.description('Required. The name of the environment type.')
+@sys.description('Required. The name of the environment type. The environment type must be first created in the Dev Center and then made available to a project using project level environment types. The name should be equivalent to the name of the environment type in the Dev Center.')
 @minLength(3)
 @maxLength(63)
 param name string
@@ -16,33 +16,33 @@ param projectName string
 @sys.description('Optional. The display name of the environment type.')
 param displayName string?
 
-// Note: Description property is not supported in the EnvironmentType schema
+@sys.description('Required. The subscription Resource ID where the environment type will be mapped to. The environment\'s resources will be deployed into this subscription. Should be in the format "/subscriptions/{subscriptionId}".')
+param deploymentTargetSubscriptionResourceId string
 
-@sys.description('Optional. Id of a subscription that the environment type will be mapped to. The environment\'s resources will be deployed into this subscription.')
-param deploymentTargetId string?
-
-@sys.description('Optional. Defines whether this Environment Type can be used in this Project.')
+@sys.description('Optional. Defines whether this Environment Type can be used in this Project. The default is "Enabled".')
 @allowed([
   'Enabled'
   'Disabled'
 ])
-param status string?
+param status string = 'Enabled'
 
 @sys.description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-@sys.description('Optional. The role definition assigned to the environment creator on backing resources.')
-param creatorRoleAssignment creatorRoleAssignmentType?
+@sys.description('Required. Specifies the role definitions (permissions) that will be granted to the user that creates a given environment of this type.')
+param creatorRoleAssignment creatorRoleAssignmentType
 
 @sys.description('Optional. Role Assignments created on environment backing resources. This is a mapping from a user object ID to an object of role definition IDs.')
 param userRoleAssignments userRoleAssignmentsType?
 
-@sys.description('Optional. Tags of the resource.')
+@sys.description('Optional. Resource tags to apply to the environment type.')
 param tags object?
 
 import { managedIdentityAllType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
-@sys.description('Optional. The managed identity definition for this resource.')
-param managedIdentities managedIdentityAllType?
+@sys.description('Optional. The managed identity definition for this resource. If using user assigned identities, they must be first associated to the project that this environment type is created in and only one user identity can be used per project. At least one identity (system assigned or user assigned) must be enabled for deployment. The default is set to system assigned identity.')
+param managedIdentities managedIdentityAllType = {
+  systemAssigned: true
+}
 
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
@@ -75,10 +75,10 @@ resource environmentType 'Microsoft.DevCenter/projects/environmentTypes@2025-02-
   identity: identity
   properties: {
     displayName: displayName
-    deploymentTargetId: deploymentTargetId
+    deploymentTargetId: deploymentTargetSubscriptionResourceId
     status: status
     creatorRoleAssignment: creatorRoleAssignment
-    userRoleAssignments: userRoleAssignments
+    //userRoleAssignments: userRoleAssignments
   }
 }
 
@@ -108,9 +108,9 @@ output systemAssignedMIPrincipalId string? = environmentType.?identity.?principa
 @sys.description('The type for the creator role assignment.')
 @export()
 type creatorRoleAssignmentType = {
-  @sys.description('A map of roles to assign to the environment creator.')
+  @sys.description('Required. A map of roles to assign to the environment creator.')
   roles: {
-    @sys.description('The role assignment properties.')
+    @sys.description('Required. The role assignment properties.')
     *: environmentRoleType
   }
 }

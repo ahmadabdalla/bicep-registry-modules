@@ -27,7 +27,7 @@ import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5
 param roleAssignments roleAssignmentType[]?
 
 import { managedIdentityAllType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
-@sys.description('Optional. The managed identity definition for this resource.')
+@sys.description('Optional. The managed identity definition for this resource. Only one user assigned identity can be used per project.')
 param managedIdentities managedIdentityAllType?
 
 @sys.description('Required. Resource ID of an associated DevCenter.')
@@ -42,6 +42,9 @@ param maxDevBoxesPerUser int?
 
 @sys.description('Optional. Enable/Disable usage telemetry for module.')
 param enableTelemetry bool = true
+
+@sys.description('Optional. The environment types to create. Environment types must be first created in the Dev Center and then made available to a project using project level environment types. The name should be equivalent to the name of the environment type in the Dev Center.')
+param environmentTypes environmentTypeType[]?
 
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
@@ -140,6 +143,21 @@ resource project 'Microsoft.DevCenter/projects@2025-02-01' = {
   }
 }
 
+module project_environmentType 'environment-type/main.bicep' = [
+  for (environmentType, index) in (environmentTypes ?? []): {
+    name: '${uniqueString(deployment().name, location)}-Project-EnvironmentTypes-${index}'
+    params: {
+      creatorRoleAssignment: environmentType.creatorRoleAssignment
+      deploymentTargetSubscriptionResourceId: environmentType.deploymentTargetSubscriptionResourceId
+      managedIdentities: environmentType.?managedIdentities
+      name: environmentType.name
+      projectName: project.name
+      status: environmentType.?status
+      tags: environmentType.?tags
+    }
+  }
+]
+
 resource project_lock 'Microsoft.Authorization/locks@2020-05-01' = if (!empty(lock ?? {}) && lock.?kind != 'None') {
   name: lock.?name ?? 'lock-${name}'
   properties: {
@@ -195,4 +213,27 @@ output systemAssignedMIPrincipalId string? = project.?identity.?principalId
 type catalogSettingsType = {
   @sys.description('Optional. Indicates catalog item types that can be synced.')
   catalogItemSyncTypes: ('EnvironmentDefinition' | 'ImageDefinition')[]?
+}
+
+import { creatorRoleAssignmentType } from 'environment-type/main.bicep'
+@export()
+@sys.description('The type for the environment type.')
+type environmentTypeType = {
+  @sys.description('Required. Specifies the role definitions (permissions) that will be granted to the user that creates a given environment of this type.')
+  creatorRoleAssignment: creatorRoleAssignmentType
+
+  @sys.description('Required. The subscription Resource ID where the environment type will be mapped to. The environment\'s resources will be deployed into this subscription. Should be in the format "/subscriptions/{subscriptionId}".')
+  deploymentTargetSubscriptionResourceId: string
+
+  @sys.description('Optional. The managed identity definition for this resource. If using user assigned identities, they must be first associated to the project that this environment type is created in and only one user identity can be used per project. At least one identity (system assigned or user assigned) must be enabled for deployment. The default is set to system assigned identity.')
+  managedIdentities: managedIdentityAllType?
+
+  @sys.description('Required. The name of the environment type. The environment type must be first created in the Dev Center and then made available to a project using project level environment types. The name should be equivalent to the name of the environment type in the Dev Center.')
+  name: string
+
+  @sys.description('Optional. Defines whether this Environment Type can be used in this Project. The default is "Enabled".')
+  status: 'Enabled' | 'Disabled'?
+
+  @sys.description('Optional. Resource tags to apply to the environment type.')
+  tags: object?
 }
