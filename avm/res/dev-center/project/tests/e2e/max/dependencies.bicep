@@ -47,6 +47,26 @@ resource environmentType 'Microsoft.DevCenter/devcenters/environmentTypes@2025-0
   }
 }
 
+resource gallery 'Microsoft.DevCenter/devcenters/galleries@2025-02-01' existing = {
+  name: 'Default'
+  parent: devCenter
+}
+
+resource devboxDefinition 'Microsoft.DevCenter/devcenters/devboxdefinitions@2025-02-01' = {
+  name: 'SandboxDevboxDefinition'
+  parent: devCenter
+  location: location
+  properties: {
+    imageReference: {
+      id: '${gallery.id}/images/microsoftvisualstudio_visualstudioplustools_vs-2022-ent-general-win11-m365-gen2'
+    }
+    sku: {
+      name: 'general_i_8c32gb256ssd_v2'
+    }
+    hibernateSupport: 'Enabled'
+  }
+}
+
 resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
   name: guid(resourceGroup().id, 'DevCenterReader')
   properties: {
