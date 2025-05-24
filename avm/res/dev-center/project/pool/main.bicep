@@ -38,8 +38,8 @@ param tags object?
 @description('Optional. The local administrator setting for the pool.')
 param localAdministrator string?
 
-@description('Optional. The managed virtual network regions for the pool.')
-param managedVirtualNetworkRegions array = []
+@description('Optional. The managed virtual network region for the pool.')
+param managedVirtualNetworkRegions string[] = []
 
 @description('Optional. The single sign-on status for the pool.')
 @allowed([
@@ -51,9 +51,24 @@ param singleSignOnStatus string = 'Disabled'
 @description('Optional. The virtual network type for the pool.')
 param virtualNetworkType string?
 
+@description('Optional. Configuration for stop on disconnect.')
+param stopOnDisconnect StopOnDisconnectConfiguration?
+
+@description('Optional. Configuration for stop on no connect.')
+param stopOnNoConnect StopOnNoConnectConfiguration?
+
 import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
 @description('Optional. Array of role assignments to create.')
 param roleAssignments roleAssignmentType[]?
+
+@description('Required. The SKU configuration for the dev box definition.')
+param sku DevBoxSkuConfiguration
+
+@description('Required. The resource ID of the image reference for the dev box definition.')
+param imageReferenceResourceId string
+
+@description('Required. The type of the dev box definition.')
+param devBoxDefinitionType string
 
 var formattedRoleAssignments = [
   for (roleAssignment, index) in (roleAssignments ?? []): union(roleAssignment, {
@@ -77,32 +92,23 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
   properties: {
     devBoxDefinition: {
       imageReference: {
-        id: devBoxDefinitionResourceId
+        id: imageReferenceResourceId
       }
-      sku: {
-        capacity: int
-        family: 'string'
-        name: 'string'
-        size: 'string'
-        tier: 'string'
-      }
+      sku: sku
     }
     devBoxDefinitionName: devBoxDefinitionResourceId
-    devBoxDefinitionType: 'string'
+    devBoxDefinitionType: devBoxDefinitionType
     displayName: displayName
     licenseType: licenseType
     localAdministrator: localAdministrator
-    managedVirtualNetworkRegions: managedVirtualNetworkRegions
+    managedVirtualNetworkRegions: managedVirtualNetworkRegions // Correctly referenced parameter
     networkConnectionName: networkConnectionResourceId
     singleSignOnStatus: singleSignOnStatus
-    stopOnDisconnect: {
-      gracePeriodMinutes: int
-      status: 'Enabled' | 'Disabled'
+    stopOnDisconnect: stopOnDisconnect ?? {
+      gracePeriodMinutes: 0
+      status: 'Disabled'
     }
-    stopOnNoConnect: {
-      gracePeriodMinutes: int
-      status: 'Enabled' | 'Disabled'
-    }
+    stopOnNoConnect: stopOnNoConnect
     virtualNetworkType: virtualNetworkType
   }
 }
@@ -139,32 +145,48 @@ output resourceGroupName string = resourceGroup().name
 @description('The location the resource was deployed into.')
 output location string = pool.location
 
-// NOTE: The following parameters are commented out because they are not currently supported by the Bicep type system for this resource:
-// param poolDescription string?
-// param size string = 'medium'
-// param maxDevBoxes int = 0
-// param hibernateEnabled bool = false
-// param stopEnabled bool = false
-// param singleSignOnEnabled bool = false
-// param autoAssignmentEnabled bool = false
-// param allowedRegions array = []
-// param allowedImageReferences array = []
-// param allowedSkuReferences array = []
-//
-// If/when Bicep supports these, add them to the resource definition and parameters.
-
-// Remove stopOnDisconnect and stopOnNoConnect for now, as they require complex types not currently handled here.
-
 // ================ //
 // Definitions      //
 // ================ //
-//
-// NOTE: When Bicep supports complex types for managedVirtualNetworkRegions, use the following type:
-// @description('The type for managed virtual network regions.')
-// @export()
-// type managedVirtualNetworkRegionType = {
-//   @description('The Azure region name.')
-//   region: string
-//   @description('The subnet resource ID.')
-//   subnetId: string
-// }
+
+@description('The type for stopOnDisconnect configuration.')
+@export()
+type StopOnDisconnectConfiguration = {
+  @description('Required. The grace period in minutes before stopping the session after a disconnect.')
+  gracePeriodMinutes: int
+  @description('Required. The status of the stop on disconnect configuration. Allowed values: Enabled, Disabled.')
+  status: 'Enabled' | 'Disabled'
+}
+
+@description('The type for stopOnNoConnect configuration.')
+@export()
+type StopOnNoConnectConfiguration = {
+  @description('Required. The grace period in minutes before stopping the session when no connection is established.')
+  gracePeriodMinutes: int
+  @description('Required. The status of the stop on no connect configuration. Allowed values: Enabled, Disabled.')
+  status: 'Enabled' | 'Disabled'
+}
+
+@description('The type for managed virtual network regions.')
+@export()
+type ManagedVirtualNetworkRegionType = {
+  @description('Required. The region of the managed virtual network.')
+  region: string
+  @description('Required. The subnet ID of the managed virtual network.')
+  subnetId: string
+}
+
+@description('The type for SKU configuration of the dev box definition.')
+@export()
+type DevBoxSkuConfiguration = {
+  @description('Required. The capacity of the SKU.')
+  capacity: int
+  @description('Required. The family of the SKU.')
+  family: string
+  @description('Required. The name of the SKU.')
+  name: string
+  @description('Required. The size of the SKU.')
+  size: string
+  @description('Required. The tier of the SKU. Allowed values: Basic, Free, Premium, Standard.')
+  tier: 'Basic' | 'Free' | 'Premium' | 'Standard'
+}
