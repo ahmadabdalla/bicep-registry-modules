@@ -147,7 +147,7 @@ module project_environmentType 'environment-type/main.bicep' = [
   for (environmentType, index) in (environmentTypes ?? []): {
     name: '${uniqueString(deployment().name, location)}-Project-EnvironmentTypes-${index}'
     params: {
-      creatorRoleAssignment: environmentType.creatorRoleAssignment
+      creatorRoleAssignmentRoles: environmentType.creatorRoleAssignmentRoles
       deploymentTargetSubscriptionResourceId: environmentType.deploymentTargetSubscriptionResourceId
       managedIdentities: environmentType.?managedIdentities
       name: environmentType.name
@@ -220,8 +220,8 @@ import { creatorRoleAssignmentType } from 'environment-type/main.bicep'
 @export()
 @sys.description('The type for the environment type.')
 type environmentTypeType = {
-  @sys.description('Required. Specifies the role definitions (permissions) that will be granted to the user that creates a given environment of this type.')
-  creatorRoleAssignment: creatorRoleAssignmentType
+  @sys.description('Required. An array specifying the role definitions (permissions) GUIDs that will be granted to the user that creates a given environment of this type. These can be both built-in or custom role definitions. At least one role must be specified.')
+  creatorRoleAssignmentRoles: string[]
 
   @sys.description('Required. The subscription Resource ID where the environment type will be mapped to. The environment\'s resources will be deployed into this subscription. Should be in the format "/subscriptions/{subscriptionId}".')
   deploymentTargetSubscriptionResourceId: string

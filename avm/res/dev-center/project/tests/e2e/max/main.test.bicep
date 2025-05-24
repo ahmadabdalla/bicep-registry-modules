@@ -101,12 +101,10 @@ module testDeployment '../../../main.bicep' = [
       maxDevBoxesPerUser: 2
       environmentTypes: [
         {
-          creatorRoleAssignment: {
-            roles: {
-              'acdd72a7-3385-48ef-bd42-f606fba81ae7': {} // 'Reader'
-              'b24988ac-6180-42a0-ab88-20f7382dd24c': {} // 'Contributor'
-            }
-          }
+          creatorRoleAssignmentRoles: [
+            'acdd72a7-3385-48ef-bd42-f606fba81ae7' // 'Reader'
+            'b24988ac-6180-42a0-ab88-20f7382dd24c' // 'Contributor'
+          ]
           name: 'dep-${namePrefix}-et-${serviceShort}'
           status: 'Enabled'
           deploymentTargetSubscriptionResourceId: subscription().id

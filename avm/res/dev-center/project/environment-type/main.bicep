@@ -29,8 +29,8 @@ param status string = 'Enabled'
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-@description('Required. Specifies the role definitions (permissions) that will be granted to the user that creates a given environment of this type.')
-param creatorRoleAssignment creatorRoleAssignmentType
+@sys.description('Required. An array specifying the role definitions (permissions) GUIDs that will be granted to the user that creates a given environment of this type. These can be both built-in or custom role definitions. At least one role must be specified.')
+param creatorRoleAssignmentRoles string[]
 
 //@description('Optional. Role Assignments created on environment backing resources. This is a mapping from a user object ID to an object of role definition IDs.')
 //param userRoleAssignments userRoleAssignmentsType?
@@ -126,7 +126,9 @@ resource environmentType 'Microsoft.DevCenter/projects/environmentTypes@2025-02-
     displayName: displayName
     deploymentTargetId: deploymentTargetSubscriptionResourceId
     status: status
-    creatorRoleAssignment: creatorRoleAssignment
+    creatorRoleAssignment: {
+      roles: reduce(map(creatorRoleAssignmentRoles, (role) => { '${role}': {} }), {}, (cur, next) => union(cur, next))
+    }
     //userRoleAssignments: userRoleAssignments
   }
 }
@@ -175,16 +177,6 @@ type creatorRoleAssignmentType = {
   @description('Required. A map of roles to assign to the environment creator.')
   roles: {
     @description('Required. The role assignment properties.')
-    *: environmentRoleType
+    *: {}
   }
-}
-
-@description('The type for the environment role.')
-@export()
-type environmentRoleType = {
-  @description('The description of the Role Assignment.')
-  description: string?
-
-  @description('The common name of the Role Assignment. This is a descriptive name such as \'AcrPush\'.')
-  roleName: string?
 }
