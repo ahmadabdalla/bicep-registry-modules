@@ -75,15 +75,35 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
   location: location
   tags: tags
   properties: {
-    displayName: displayName
+    devBoxDefinition: {
+      imageReference: {
+        id: devBoxDefinitionResourceId
+      }
+      sku: {
+        capacity: int
+        family: 'string'
+        name: 'string'
+        size: 'string'
+        tier: 'string'
+      }
+    }
     devBoxDefinitionName: devBoxDefinitionResourceId
-    networkConnectionName: networkConnectionResourceId
+    devBoxDefinitionType: 'string'
+    displayName: displayName
     licenseType: licenseType
     localAdministrator: localAdministrator
     managedVirtualNetworkRegions: managedVirtualNetworkRegions
+    networkConnectionName: networkConnectionResourceId
     singleSignOnStatus: singleSignOnStatus
+    stopOnDisconnect: {
+      gracePeriodMinutes: int
+      status: 'Enabled' | 'Disabled'
+    }
+    stopOnNoConnect: {
+      gracePeriodMinutes: int
+      status: 'Enabled' | 'Disabled'
+    }
     virtualNetworkType: virtualNetworkType
-    // stopOnDisconnect and stopOnNoConnect omitted for now
   }
 }
 
