@@ -152,6 +152,7 @@ module project_environmentType 'environment-type/main.bicep' = [
       managedIdentities: environmentType.?managedIdentities
       name: environmentType.name
       projectName: project.name
+      roleAssignments: environmentType.?roleAssignments
       status: environmentType.?status
       tags: environmentType.?tags
     }
@@ -233,6 +234,9 @@ type environmentTypeType = {
 
   @sys.description('Optional. Defines whether this Environment Type can be used in this Project. The default is "Enabled".')
   status: 'Enabled' | 'Disabled'?
+
+  @sys.description('Optional. Array of role assignments to create.')
+  roleAssignments: roleAssignmentType[]?
 
   @sys.description('Optional. Resource tags to apply to the environment type.')
   tags: object?

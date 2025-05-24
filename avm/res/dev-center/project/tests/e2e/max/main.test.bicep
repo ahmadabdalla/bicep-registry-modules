@@ -62,10 +62,10 @@ module testDeployment '../../../main.bicep' = [
           nestedDependencies.outputs.managedIdentityResourceId
         ]
       }
-      lock: {
-        kind: 'CanNotDelete'
-        name: 'myCustomLockName'
-      }
+      //lock: { restore once development work is done
+      //  kind: 'CanNotDelete'
+      //  name: 'myCustomLockName'
+      //}
       tags: {
         'hidden-title': 'This is visible in the resource name'
         Environment: 'Non-Prod'
@@ -103,10 +103,8 @@ module testDeployment '../../../main.bicep' = [
         {
           creatorRoleAssignment: {
             roles: {
-              'acdd72a7-3385-48ef-bd42-f606fba81ae7': {
-                roleName: 'Reader'
-                description: 'test'
-              } // 'Reader'
+              'acdd72a7-3385-48ef-bd42-f606fba81ae7': {} // 'Reader'
+              'b24988ac-6180-42a0-ab88-20f7382dd24c': {} // 'Contributor'
             }
           }
           name: 'dep-${namePrefix}-et-${serviceShort}'
@@ -121,6 +119,13 @@ module testDeployment '../../../main.bicep' = [
               nestedDependencies.outputs.managedIdentityResourceId
             ]
           }
+          roleAssignments: [
+            {
+              principalId: nestedDependencies.outputs.managedIdentityPrincipalId
+              roleDefinitionIdOrName: 'DevCenter Project Admin'
+              principalType: 'ServicePrincipal'
+            }
+          ]
         }
       ]
     }
