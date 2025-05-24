@@ -5,7 +5,7 @@ metadata description = 'This module deploys a Dev Center Project Pool.'
 // Parameters       //
 // ================ //
 
-@description('Required. The name of the project pool.')
+@description('Required. The name of the project pool. This name must be unique within a project and is visible to developers when creating dev boxes.')
 @minLength(3)
 @maxLength(63)
 param name string
@@ -16,13 +16,13 @@ param projectName string
 @description('Optional. The display name of the pool.')
 param displayName string?
 
-@description('Required. The resource ID of the dev box definition to use for this pool.')
+@description('Required. The resource ID of the dev box definition to use for this pool. The definition determines the base image and size for the dev boxes.')
 param devBoxDefinitionResourceId string
 
-@description('Required. The resource ID of the network connection to use for this pool.')
+@description('Required. The resource ID of the network connection to use for this pool. This defines the network settings for the dev boxes.')
 param networkConnectionResourceId string
 
-@description('Optional. The license type to use for this pool. Allowed values: Windows_Client, Windows_Server.')
+@description('Optional. The license type to use for this pool.')
 @allowed([
   'Windows_Client'
   'Windows_Server'
@@ -35,11 +35,11 @@ param location string = resourceGroup().location
 @description('Optional. Resource tags to apply to the pool.')
 param tags object?
 
-@description('Optional. The local administrator setting for the pool.')
+@description('Optional. The local administrator setting for the pool. Determines the privileges of the dev box users.')
 param localAdministrator string?
 
-@description('Optional. The managed virtual network region for the pool.')
-param managedVirtualNetworkRegions string[] = []
+@description('Optional. Specifies the regions for the managed virtual network.')
+param managedVirtualNetworkRegions string[]?
 
 @description('Optional. The single sign-on status for the pool.')
 @allowed([
@@ -51,16 +51,16 @@ param singleSignOnStatus string = 'Disabled'
 @description('Optional. The virtual network type for the pool.')
 param virtualNetworkType string?
 
-@description('Optional. Configuration for stop on disconnect.')
+@description('Optional. Configuration for stop on disconnect. Defines the behavior when a session is disconnected.')
 param stopOnDisconnect StopOnDisconnectConfiguration?
 
-@description('Optional. Configuration for stop on no connect.')
+@description('Optional. Configuration for stop on no connect. Defines the behavior when no connection is established.')
 param stopOnNoConnect StopOnNoConnectConfiguration?
 
 @description('Required. The SKU configuration for the dev box definition.')
 param sku DevBoxSkuConfiguration
 
-@description('Required. The resource ID of the image reference for the dev box definition.')
+@description('Required. The resource ID of the image reference for the dev box definition. This defines the base image for the dev boxes.')
 param imageReferenceResourceId string
 
 @description('Required. The type of the dev box definition.')
