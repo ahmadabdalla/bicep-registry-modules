@@ -57,10 +57,6 @@ param stopOnDisconnect StopOnDisconnectConfiguration?
 @description('Optional. Configuration for stop on no connect.')
 param stopOnNoConnect StopOnNoConnectConfiguration?
 
-import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
-@description('Optional. Array of role assignments to create.')
-param roleAssignments roleAssignmentType[]?
-
 @description('Required. The SKU configuration for the dev box definition.')
 param sku DevBoxSkuConfiguration
 
@@ -69,12 +65,6 @@ param imageReferenceResourceId string
 
 @description('Required. The type of the dev box definition.')
 param devBoxDefinitionType string
-
-var formattedRoleAssignments = [
-  for (roleAssignment, index) in (roleAssignments ?? []): union(roleAssignment, {
-    roleDefinitionId: roleAssignment.roleDefinitionIdOrName
-  })
-]
 
 // ============== //
 // Resources      //
@@ -112,22 +102,6 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
     virtualNetworkType: virtualNetworkType
   }
 }
-
-resource pool_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
-  for (roleAssignment, index) in (formattedRoleAssignments ?? []): {
-    name: roleAssignment.?name ?? guid(pool.id, roleAssignment.principalId, roleAssignment.roleDefinitionId)
-    properties: {
-      roleDefinitionId: roleAssignment.roleDefinitionId
-      principalId: roleAssignment.principalId
-      description: roleAssignment.?description
-      principalType: roleAssignment.?principalType
-      condition: roleAssignment.?condition
-      conditionVersion: !empty(roleAssignment.?condition) ? (roleAssignment.?conditionVersion ?? '2.0') : null
-      delegatedManagedIdentityResourceId: roleAssignment.?delegatedManagedIdentityResourceId
-    }
-    scope: pool
-  }
-]
 
 // ============ //
 // Outputs      //
