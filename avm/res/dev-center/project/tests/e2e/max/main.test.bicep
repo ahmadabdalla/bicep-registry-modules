@@ -38,7 +38,9 @@ module nestedDependencies 'dependencies.bicep' = {
   params: {
     devCenterName: 'dep-${namePrefix}-dc-${serviceShort}'
     environmentTypeName: 'dep-${namePrefix}-et-${serviceShort}'
-    managedIdentityName: 'dep-${namePrefix}-msi-${serviceShort}'
+    managedIdentity1Name: 'dep-${namePrefix}-msi1-${serviceShort}'
+    managedIdentity2Name: 'dep-${namePrefix}-msi2-${serviceShort}'
+    roleDefinitionName: 'dep-${namePrefix}-customrole-${serviceShort}'
   }
 }
 
@@ -73,14 +75,14 @@ module testDeployment '../../../main.bicep' = [
       }
       roleAssignments: [
         {
-          principalId: nestedDependencies.outputs.managedIdentityPrincipalId
+          principalId: nestedDependencies.outputs.managedIdentity1PrincipalId
           roleDefinitionIdOrName: 'DevCenter Project Admin'
           principalType: 'ServicePrincipal'
         }
         {
           name: guid('Custom seed ${namePrefix}${serviceShort}')
           roleDefinitionIdOrName: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-          principalId: nestedDependencies.outputs.managedIdentityPrincipalId
+          principalId: nestedDependencies.outputs.managedIdentity1PrincipalId
           principalType: 'ServicePrincipal'
         }
         {
@@ -88,7 +90,7 @@ module testDeployment '../../../main.bicep' = [
             'Microsoft.Authorization/roleDefinitions',
             'acdd72a7-3385-48ef-bd42-f606fba81ae7'
           )
-          principalId: nestedDependencies.outputs.managedIdentityPrincipalId
+          principalId: nestedDependencies.outputs.managedIdentity1PrincipalId
           principalType: 'ServicePrincipal'
         }
       ]
@@ -101,10 +103,6 @@ module testDeployment '../../../main.bicep' = [
       maxDevBoxesPerUser: 2
       environmentTypes: [
         {
-          creatorRoleAssignmentRoles: [
-            'acdd72a7-3385-48ef-bd42-f606fba81ae7' // 'Reader'
-            'b24988ac-6180-42a0-ab88-20f7382dd24c' // 'Contributor'
-          ]
           name: 'dep-${namePrefix}-et-${serviceShort}'
           status: 'Enabled'
           deploymentTargetSubscriptionResourceId: subscription().id
@@ -119,9 +117,28 @@ module testDeployment '../../../main.bicep' = [
           }
           roleAssignments: [
             {
-              principalId: nestedDependencies.outputs.managedIdentityPrincipalId
+              principalId: nestedDependencies.outputs.managedIdentity1PrincipalId
               roleDefinitionIdOrName: 'DevCenter Project Admin'
               principalType: 'ServicePrincipal'
+            }
+          ]
+          creatorRoleAssignmentRoles: [
+            'acdd72a7-3385-48ef-bd42-f606fba81ae7' // 'Reader'
+            'b24988ac-6180-42a0-ab88-20f7382dd24c' // 'Contributor'
+          ]
+          userRoleAssignmentsRoles: [
+            {
+              objectId: nestedDependencies.outputs.managedIdentity1PrincipalId
+              roleDefinitions: [
+                'e503ece1-11d0-4e8e-8e2c-7a6c3bf38815' // 'AzureML Compute Operator'
+                'b59867f0-fa02-499b-be73-45a86b5b3e1c' // 'Cognitive Services Data Reader'
+              ]
+            }
+            {
+              objectId: nestedDependencies.outputs.managedIdentity2PrincipalId
+              roleDefinitions: [
+                nestedDependencies.outputs.roleDefinitionId // Custom role
+              ]
             }
           ]
         }

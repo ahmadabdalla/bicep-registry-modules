@@ -32,8 +32,8 @@ param location string = resourceGroup().location
 @sys.description('Required. An array specifying the role definitions (permissions) GUIDs that will be granted to the user that creates a given environment of this type. These can be both built-in or custom role definitions. At least one role must be specified.')
 param creatorRoleAssignmentRoles string[]
 
-//@description('Optional. Role Assignments created on environment backing resources. This is a mapping from a user object ID to an object of role definition IDs.')
-//param userRoleAssignments userRoleAssignmentsType?
+@description('Optional. A collection of additional object IDs of users, groups, service principals or managed identities be granted permissions on each environment of this type. Each identity can have multiple role definitions (permissions) GUIDs assigned to it. These can be either built-in or custom role definitions.')
+param userRoleAssignmentsRoles additionalRoleAssignmentsType?
 
 @description('Optional. Resource tags to apply to the environment type.')
 param tags object?
@@ -108,6 +108,18 @@ var formattedRoleAssignments = [
   })
 ]
 
+// Transform the user-friendly array into the required Azure object format (roles as GUIDs, no mapping)
+var userRoleAssignments = reduce(
+  userRoleAssignmentsRoles!,
+  {},
+  (cur, next) =>
+    union(cur, {
+      '${next.objectId}': {
+        roles: reduce(next.roleDefinitions, {}, (roleCur, roleNext) => union(roleCur, { '${roleNext}': {} }))
+      }
+    })
+)
+
 // ============== //
 // Resources      //
 // ============== //
@@ -129,7 +141,7 @@ resource environmentType 'Microsoft.DevCenter/projects/environmentTypes@2025-02-
     creatorRoleAssignment: {
       roles: reduce(map(creatorRoleAssignmentRoles, (role) => { '${role}': {} }), {}, (cur, next) => union(cur, next))
     }
-    //userRoleAssignments: userRoleAssignments
+    userRoleAssignments: !empty(userRoleAssignments) ? userRoleAssignments : null
   }
 }
 
@@ -171,12 +183,11 @@ output systemAssignedMIPrincipalId string? = environmentType.?identity.?principa
 // Definitions      //
 // ================ //
 
-@description('The type for the creator role assignment.')
+@description('The type for additional role assignments.')
 @export()
-type creatorRoleAssignmentType = {
-  @description('Required. A map of roles to assign to the environment creator.')
-  roles: {
-    @description('Required. The role assignment properties.')
-    *: {}
-  }
-}
+type additionalRoleAssignmentsType = {
+  @description('Required. The object ID of the user, group, service principal, or managed identity.')
+  objectId: string
+  @description('Required. An array of role definition GUIDs to assign to the object.')
+  roleDefinitions: array
+}[]

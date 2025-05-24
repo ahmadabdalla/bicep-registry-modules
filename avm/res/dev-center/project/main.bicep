@@ -155,6 +155,7 @@ module project_environmentType 'environment-type/main.bicep' = [
       roleAssignments: environmentType.?roleAssignments
       status: environmentType.?status
       tags: environmentType.?tags
+      userRoleAssignmentsRoles: environmentType.?userRoleAssignmentsRoles
     }
   }
 ]
@@ -216,7 +217,7 @@ type catalogSettingsType = {
   catalogItemSyncTypes: ('EnvironmentDefinition' | 'ImageDefinition')[]?
 }
 
-import { creatorRoleAssignmentType } from 'environment-type/main.bicep'
+import { additionalRoleAssignmentsType } from 'environment-type/main.bicep'
 @export()
 @sys.description('The type for the environment type.')
 type environmentTypeType = {
@@ -240,4 +241,7 @@ type environmentTypeType = {
 
   @sys.description('Optional. Resource tags to apply to the environment type.')
   tags: object?
+
+  @sys.description('Optional. A collection of additional object IDs of users, groups, service principals or managed identities be granted permissions on each environment of this type. Each identity can have multiple role definitions (permissions) GUIDs assigned to it. These can be either built-in or custom role definitions.')
+  userRoleAssignmentsRoles: additionalRoleAssignmentsType?
 }

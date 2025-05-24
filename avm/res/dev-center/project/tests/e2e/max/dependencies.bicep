@@ -4,14 +4,25 @@ param devCenterName string
 @description('Required. The name of the Dev Center Environment Type to create.')
 param environmentTypeName string
 
-@description('Required. The name of the Managed Identity to create.')
-param managedIdentityName string
+@description('Required. The name of the first Managed Identity to create.')
+param managedIdentity1Name string
+
+@description('Required. The name of the second Managed Identity to create.')
+param managedIdentity2Name string
+
+@description('Required. The name of the custom role definition to create.')
+param roleDefinitionName string
 
 @description('Optional. The location to deploy resources to.')
 param location string = resourceGroup().location
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: managedIdentityName
+resource managedIdentity1 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
+  name: managedIdentity1Name
+  location: location
+}
+
+resource managedIdentity2 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
+  name: managedIdentity2Name
   location: location
 }
 
@@ -36,11 +47,42 @@ resource environmentType 'Microsoft.DevCenter/devcenters/environmentTypes@2025-0
   }
 }
 
+resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+  name: guid(resourceGroup().id, 'DevCenterReader')
+  properties: {
+    roleName: roleDefinitionName
+    description: 'Allows users to read Dev Center resources.'
+    type: 'CustomRole'
+    assignableScopes: [
+      resourceGroup().id
+    ]
+    permissions: [
+      {
+        actions: [
+          'Microsoft.DevCenter/devcenters/read'
+        ]
+      }
+    ]
+  }
+}
+
 @description('The resource ID of the created DevCenter.')
 output devCenterResourceId string = devCenter.id
 
-@description('The principal ID of the created Managed Identity.')
-output managedIdentityPrincipalId string = managedIdentity.properties.principalId
+@description('The principal ID of the first created Managed Identity.')
+output managedIdentity1PrincipalId string = managedIdentity1.properties.principalId
 
-@description('The resource ID of the created Managed Identity.')
-output managedIdentityResourceId string = managedIdentity.id
+@description('The resource ID of the first created Managed Identity.')
+output managedIdentityResourceId string = managedIdentity1.id
+
+@description('The principal ID of the second created Managed Identity.')
+output managedIdentity2PrincipalId string = managedIdentity2.properties.principalId
+
+@description('The resource ID of the second created Managed Identity.')
+output managedIdentity2ResourceId string = managedIdentity2.id
+
+@description('The resource ID of the custom role definition.')
+output roleDefinitionResourceId string = roleDefinition.id
+
+@description('The name of the created custom role definition.')
+output roleDefinitionId string = roleDefinition.name
