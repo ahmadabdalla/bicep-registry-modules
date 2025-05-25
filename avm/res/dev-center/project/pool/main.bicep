@@ -19,8 +19,11 @@ param displayName string?
 @description('Required. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly.')
 param devBoxDefinitionType string
 
-@description('Optional. Name of a Dev Box definition in parent Project of this Pool. Will be ignored if devBoxDefinitionType is "Value".')
+@description('Conditional. Name of a Dev Box definition in parent Project of this Pool. Required if devBoxDefinitionType is "Reference".')
 param devBoxDefinitionName string?
+
+@description('Conditional. A definition of the machines that are created from this Pool. Required if devBoxDefinitionType is "Value".')
+param devBoxDefinition devBoxDefinitionTypeType?
 
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
@@ -28,41 +31,38 @@ param location string = resourceGroup().location
 @description('Optional. Resource tags to apply to the pool.')
 param tags object?
 
-@description('Optional. Indicates whether owners of Dev Boxes in this pool are added as local administrators on the Dev Box.')
+@description('Required. Each dev box creator will be granted the selected permissions on the dev boxes they create. Indicates whether owners of Dev Boxes in this pool are added as a "local administrator" or "standard user" on the Dev Box.')
 @allowed([
   'Enabled'
   'Disabled'
 ])
-param localAdministrator string?
+param localAdministrator string
 
-@description('Conditional. The regions of the managed virtual network. Required when managedNetworkType is "Managed".')
-param managedVirtualNetworkRegions string[]?
+@description('Conditional. The region of the managed virtual network. Required if virtualNetworkType is "Managed".')
+param managedVirtualNetworkRegion string?
 
-@description('Optional. Name of a Network Connection in parent Project of this Pool.')
+@description('Conditional. Name of a Network Connection in parent Project of this Pool. Required if virtualNetworkType is "Unmanaged". The region hosting a pool is determined by the region of the network connection. For best performance, create a dev box pool for every region where your developers are located. Will be set to "managedNetwork" if virtualNetworkType is "Managed".')
 param networkConnectionName string?
 
-@description('Optional. Indicates whether Dev Boxes in this pool are created with single sign on enabled. The also requires that single sign on be enabled on the tenant.')
+@description('Optional. Indicates whether Dev Boxes in this pool are created with single sign on enabled. The also requires that single sign on be enabled on the tenant. Changing this setting will not affect existing dev boxes.')
 @allowed([
   'Enabled'
   'Disabled'
 ])
-param singleSignOnStatus string = 'Disabled'
+param singleSignOnStatus string?
 
-@description('Optional. Stop on disconnect configuration settings for Dev Boxes created in this pool.')
-param stopOnDisconnect StopOnDisconnectConfiguration?
+@description('Optional. Stop on "disconnect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period after the user disconnects.')
+param stopOnDisconnect stopOnDisconnectConfiguration?
 
-@description('Optional. Stop on no connect configuration settings for Dev Boxes created in this pool.')
-param stopOnNoConnect StopOnNoConnectConfiguration?
+@description('Optional. Stop on "no connect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects.')
+param stopOnNoConnect stopOnNoConnectConfiguration?
 
-@description('Optional. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network.')
+@description('Required. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network. For the easiest configuration experience, the Microsoft hosted network can be used for dev box deployment. For organizations that require customized networking, use a network connection resource.')
 @allowed([
   'Managed'
   'Unmanaged'
 ])
-param virtualNetworkType string?
-
-@description('Optional. A definition of the machines that are created from this Pool. Will be ignored if devBoxDefinitionType is "Reference" or not provided.')
-param devBoxDefinition DevBoxDefinitionType?
+param virtualNetworkType string
 
 // ============== //
 // Resources      //
@@ -78,7 +78,7 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
   location: location
   tags: tags
   properties: {
-    devBoxDefinition: !empty(devBoxDefinitionType) && devBoxDefinitionType == 'Value'
+    devBoxDefinition: devBoxDefinitionType == 'Value'
       ? {
           imageReference: {
             id: devBoxDefinition.?imageReferenceResourceId
@@ -86,13 +86,13 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
           sku: devBoxDefinition.?sku
         }
       : null
-    devBoxDefinitionName: devBoxDefinitionName
+    devBoxDefinitionName: devBoxDefinitionType == 'Reference' ? devBoxDefinitionName : null
     devBoxDefinitionType: devBoxDefinitionType
     displayName: displayName
     licenseType: 'Windows_Client'
     localAdministrator: localAdministrator
-    managedVirtualNetworkRegions: managedVirtualNetworkRegions
-    networkConnectionName: networkConnectionName
+    managedVirtualNetworkRegions: virtualNetworkType == 'Managed' ? [managedVirtualNetworkRegion!] : null
+    networkConnectionName: virtualNetworkType == 'Unmanaged' ? networkConnectionName : 'managedNetwork'
     singleSignOnStatus: singleSignOnStatus
     stopOnDisconnect: stopOnDisconnect
     stopOnNoConnect: stopOnNoConnect
@@ -122,7 +122,7 @@ output location string = pool.location
 
 @description('The type for stopOnDisconnect configuration.')
 @export()
-type StopOnDisconnectConfiguration = {
+type stopOnDisconnectConfiguration = {
   @description('Required. The specified time in minutes to wait before stopping a Dev Box once disconnect is detected.')
   gracePeriodMinutes: int
 
@@ -132,7 +132,7 @@ type StopOnDisconnectConfiguration = {
 
 @description('The type for stopOnNoConnect configuration.')
 @export()
-type StopOnNoConnectConfiguration = {
+type stopOnNoConnectConfiguration = {
   @description('Required. The specified time in minutes to wait before stopping a Dev Box if no connection is made.')
   gracePeriodMinutes: int
 
@@ -142,7 +142,7 @@ type StopOnNoConnectConfiguration = {
 
 @description('The type for dev box definition.')
 @export()
-type DevBoxDefinitionType = {
+type devBoxDefinitionTypeType = {
   @description('Required. The resource ID of the image reference for the dev box definition.')
   imageReferenceResourceId: string
 

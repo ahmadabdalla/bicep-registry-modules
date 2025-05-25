@@ -104,6 +104,7 @@ module testDeployment '../../../main.bicep' = [
       environmentTypes: [
         {
           name: 'dep-${namePrefix}-et-${serviceShort}'
+          displayName: 'My Sandbox Environment Type'
           status: 'Enabled'
           deploymentTargetSubscriptionResourceId: subscription().id
           tags: {
@@ -141,6 +142,16 @@ module testDeployment '../../../main.bicep' = [
               ]
             }
           ]
+        }
+      ]
+      pools: [
+        {
+          name: 'sandbox-pool'
+          devBoxDefinitionType: 'Reference'
+          devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
+          localAdministrator: 'Enabled'
+          virtualNetworkType: 'Managed'
+          managedVirtualNetworkRegion: 'australiaeast'
         }
       ]
     }

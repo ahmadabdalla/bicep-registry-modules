@@ -46,6 +46,9 @@ param enableTelemetry bool = true
 @sys.description('Optional. The environment types to create. Environment types must be first created in the Dev Center and then made available to a project using project level environment types. The name should be equivalent to the name of the environment type in the Dev Center.')
 param environmentTypes environmentTypeType[]?
 
+@sys.description('Optional. The type of pool to create in the project. A project pool is a container for dev boxes that share the same configuration, like a dev box definition and a network connection. Essentially, a project pool defines the specifications for the dev boxes that developers can create from a specific project in the Dev Box service.')
+param pools poolType?
+
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
   {},
@@ -156,6 +159,30 @@ module project_environmentType 'environment-type/main.bicep' = [
       status: environmentType.?status
       tags: environmentType.?tags
       userRoleAssignmentsRoles: environmentType.?userRoleAssignmentsRoles
+      displayName: environmentType.?displayName
+    }
+  }
+]
+
+module project_pool 'pool/main.bicep' = [
+  for (pool, index) in (pools ?? []): {
+    name: '${uniqueString(deployment().name, location)}-Project-Pool-${index}'
+    params: {
+      name: pool.name
+      projectName: project.name
+      displayName: pool.?displayName
+      devBoxDefinitionType: pool.devBoxDefinitionType
+      devBoxDefinitionName: pool.?devBoxDefinitionName
+      location: pool.?location ?? location
+      tags: pool.?tags
+      localAdministrator: pool.localAdministrator
+      managedVirtualNetworkRegion: pool.?managedVirtualNetworkRegion
+      networkConnectionName: pool.?networkConnectionName
+      singleSignOnStatus: pool.?singleSignOnStatus
+      stopOnDisconnect: pool.?stopOnDisconnect
+      stopOnNoConnect: pool.?stopOnNoConnect
+      virtualNetworkType: pool.virtualNetworkType
+      devBoxDefinition: pool.?devBoxDefinition
     }
   }
 ]
@@ -224,6 +251,9 @@ type environmentTypeType = {
   @sys.description('Required. An array specifying the role definitions (permissions) GUIDs that will be granted to the user that creates a given environment of this type. These can be both built-in or custom role definitions. At least one role must be specified.')
   creatorRoleAssignmentRoles: string[]
 
+  @sys.description('Optional. The display name of the environment type.')
+  displayName: string?
+
   @sys.description('Required. The subscription Resource ID where the environment type will be mapped to. The environment\'s resources will be deployed into this subscription. Should be in the format "/subscriptions/{subscriptionId}".')
   deploymentTargetSubscriptionResourceId: string
 
@@ -245,3 +275,46 @@ type environmentTypeType = {
   @sys.description('Optional. A collection of additional object IDs of users, groups, service principals or managed identities be granted permissions on each environment of this type. Each identity can have multiple role definitions (permissions) GUIDs assigned to it. These can be either built-in or custom role definitions.')
   userRoleAssignmentsRoles: additionalRoleAssignmentsType?
 }
+
+import { stopOnDisconnectConfiguration, stopOnNoConnectConfiguration, devBoxDefinitionTypeType } from 'pool/main.bicep'
+@sys.description('The type for a Dev Center Project Pool.')
+type poolType = {
+  @sys.description('Required. The name of the project pool. This name must be unique within a project and is visible to developers when creating dev boxes.')
+  name: string
+
+  @sys.description('Optional. The display name of the pool.')
+  displayName: string?
+
+  @sys.description('Required. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly.')
+  devBoxDefinitionType: 'Reference' | 'Value'
+
+  @sys.description('Conditional. Name of a Dev Box definition in parent Project of this Pool. Required if devBoxDefinitionType is "Reference".')
+  devBoxDefinitionName: string?
+
+  @sys.description('Conditional. A definition of the machines that are created from this Pool. Required if devBoxDefinitionType is "Value".')
+  devBoxDefinition: devBoxDefinitionTypeType?
+
+  @sys.description('Optional. Resource tags to apply to the pool.')
+  tags: object?
+
+  @sys.description('Required. Each dev box creator will be granted the selected permissions on the dev boxes they create. Indicates whether owners of Dev Boxes in this pool are added as a "local administrator" or "standard user" on the Dev Box.')
+  localAdministrator: 'Enabled' | 'Disabled'
+
+  @sys.description('Conditional. The region of the managed virtual network. Required if virtualNetworkType is "Managed".')
+  managedVirtualNetworkRegion: string?
+
+  @sys.description('Conditional. Name of a Network Connection in parent Project of this Pool. Required if virtualNetworkType is "Unmanaged". The region hosting a pool is determined by the region of the network connection. For best performance, create a dev box pool for every region where your developers are located. Will be set to "managedNetwork" if virtualNetworkType is "Managed".')
+  networkConnectionName: string?
+
+  @sys.description('Optional. Indicates whether Dev Boxes in this pool are created with single sign on enabled. The also requires that single sign on be enabled on the tenant. Changing this setting will not affect existing dev boxes.')
+  singleSignOnStatus: 'Enabled' | 'Disabled'?
+
+  @sys.description('Optional. Stop on "disconnect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period after the user disconnects.')
+  stopOnDisconnect: stopOnDisconnectConfiguration?
+
+  @sys.description('Optional. Stop on "no connect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects.')
+  stopOnNoConnect: stopOnNoConnectConfiguration?
+
+  @sys.description('Required. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network. For the easiest configuration experience, the Microsoft hosted network can be used for dev box deployment. For organizations that require customized networking, use a network connection resource.')
+  virtualNetworkType: 'Managed' | 'Unmanaged'
+}[]

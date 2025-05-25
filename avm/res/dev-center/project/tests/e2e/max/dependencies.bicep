@@ -106,3 +106,6 @@ output roleDefinitionResourceId string = roleDefinition.id
 
 @description('The name of the created custom role definition.')
 output roleDefinitionId string = roleDefinition.name
+
+@description('The name of the Dev Center Devbox Definition.')
+output devboxDefinitionName string = devboxDefinition.name
