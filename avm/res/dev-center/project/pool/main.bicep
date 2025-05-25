@@ -16,18 +16,11 @@ param projectName string
 @description('Optional. The display name of the pool.')
 param displayName string?
 
-@description('Required. The resource ID of the dev box definition to use for this pool. The definition determines the base image and size for the dev boxes.')
-param devBoxDefinitionResourceId string
+@description('Required. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly.')
+param devBoxDefinitionType string
 
-@description('Required. The resource ID of the network connection to use for this pool. This defines the network settings for the dev boxes.')
-param networkConnectionResourceId string
-
-@description('Optional. The license type to use for this pool.')
-@allowed([
-  'Windows_Client'
-  'Windows_Server'
-])
-param licenseType string = 'Windows_Client'
+@description('Optional. Name of a Dev Box definition in parent Project of this Pool. Will be ignored if devBoxDefinitionType is "Value".')
+param devBoxDefinitionName string?
 
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
@@ -35,36 +28,44 @@ param location string = resourceGroup().location
 @description('Optional. Resource tags to apply to the pool.')
 param tags object?
 
-@description('Optional. The local administrator setting for the pool. Determines the privileges of the dev box users.')
+@description('Optional. Indicates whether owners of Dev Boxes in this pool are added as local administrators on the Dev Box.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
 param localAdministrator string?
 
-@description('Optional. Specifies the regions for the managed virtual network.')
+@description('Conditional. The regions of the managed virtual network. Required when managedNetworkType is "Managed".')
 param managedVirtualNetworkRegions string[]?
 
-@description('Optional. The single sign-on status for the pool.')
+@description('Optional. Name of a Network Connection in parent Project of this Pool.')
+param networkConnectionName string?
+
+@description('Optional. Indicates whether Dev Boxes in this pool are created with single sign on enabled. The also requires that single sign on be enabled on the tenant.')
 @allowed([
   'Enabled'
   'Disabled'
 ])
 param singleSignOnStatus string = 'Disabled'
 
-@description('Optional. The virtual network type for the pool.')
-param virtualNetworkType string?
-
-@description('Optional. Configuration for stop on disconnect. Defines the behavior when a session is disconnected.')
+@description('Optional. Stop on disconnect configuration settings for Dev Boxes created in this pool.')
 param stopOnDisconnect StopOnDisconnectConfiguration?
 
-@description('Optional. Configuration for stop on no connect. Defines the behavior when no connection is established.')
+@description('Optional. Stop on no connect configuration settings for Dev Boxes created in this pool.')
 param stopOnNoConnect StopOnNoConnectConfiguration?
 
-@description('Required. The SKU configuration for the dev box definition.')
-param sku DevBoxSkuConfiguration
+@description('Optional. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network.')
+@allowed([
+  'Managed'
+  'Unmanaged'
+])
+param virtualNetworkType string?
+
+@description('Required. The SKU for Dev Boxes created from the Pool.')
+param sku skuType
 
 @description('Required. The resource ID of the image reference for the dev box definition. This defines the base image for the dev boxes.')
 param imageReferenceResourceId string
-
-@description('Required. The type of the dev box definition.')
-param devBoxDefinitionType string
 
 // ============== //
 // Resources      //
@@ -86,13 +87,13 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
       }
       sku: sku
     }
-    devBoxDefinitionName: devBoxDefinitionResourceId
+    devBoxDefinitionName: devBoxDefinitionName
     devBoxDefinitionType: devBoxDefinitionType
     displayName: displayName
-    licenseType: licenseType
+    licenseType: 'Windows_Client'
     localAdministrator: localAdministrator
-    managedVirtualNetworkRegions: managedVirtualNetworkRegions // Correctly referenced parameter
-    networkConnectionName: networkConnectionResourceId
+    managedVirtualNetworkRegions: managedVirtualNetworkRegions
+    networkConnectionName: networkConnectionName
     singleSignOnStatus: singleSignOnStatus
     stopOnDisconnect: stopOnDisconnect ?? {
       gracePeriodMinutes: 0
@@ -126,18 +127,20 @@ output location string = pool.location
 @description('The type for stopOnDisconnect configuration.')
 @export()
 type StopOnDisconnectConfiguration = {
-  @description('Required. The grace period in minutes before stopping the session after a disconnect.')
+  @description('Required. The specified time in minutes to wait before stopping a Dev Box once disconnect is detected.')
   gracePeriodMinutes: int
-  @description('Required. The status of the stop on disconnect configuration. Allowed values: Enabled, Disabled.')
+
+  @description('Required. Whether the feature to stop the Dev Box on disconnect once the grace period has lapsed is enabled.')
   status: 'Enabled' | 'Disabled'
 }
 
 @description('The type for stopOnNoConnect configuration.')
 @export()
 type StopOnNoConnectConfiguration = {
-  @description('Required. The grace period in minutes before stopping the session when no connection is established.')
+  @description('Required. The specified time in minutes to wait before stopping a Dev Box if no connection is made.')
   gracePeriodMinutes: int
-  @description('Required. The status of the stop on no connect configuration. Allowed values: Enabled, Disabled.')
+
+  @description('Required. Enables the feature to stop a started Dev Box when it has not been connected to, once the grace period has lapsed.')
   status: 'Enabled' | 'Disabled'
 }
 
@@ -146,21 +149,23 @@ type StopOnNoConnectConfiguration = {
 type ManagedVirtualNetworkRegionType = {
   @description('Required. The region of the managed virtual network.')
   region: string
+
   @description('Required. The subnet ID of the managed virtual network.')
   subnetId: string
 }
 
 @description('The type for SKU configuration of the dev box definition.')
 @export()
-type DevBoxSkuConfiguration = {
-  @description('Required. The capacity of the SKU.')
-  capacity: int
-  @description('Required. The family of the SKU.')
-  family: string
-  @description('Required. The name of the SKU.')
+type skuType = {
+  @description('Optional. If the SKU supports scale out/in then the capacity integer should be included. If scale out/in is not possible for the resource this may be omitted.')
+  capacity: int?
+
+  @description('Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here.')
+  family: string?
+
+  @description('Required. The name of the SKU. E.g. P3. It is typically a letter+number code.')
   name: string
-  @description('Required. The size of the SKU.')
-  size: string
-  @description('Required. The tier of the SKU. Allowed values: Basic, Free, Premium, Standard.')
-  tier: 'Basic' | 'Free' | 'Premium' | 'Standard'
+
+  @description('Optional. The SKU size. When the name field is the combination of tier and some other value, this would be the standalone code.')
+  size: string?
 }
