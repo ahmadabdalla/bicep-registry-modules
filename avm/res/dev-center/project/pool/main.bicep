@@ -61,11 +61,8 @@ param stopOnNoConnect StopOnNoConnectConfiguration?
 ])
 param virtualNetworkType string?
 
-@description('Required. The SKU for Dev Boxes created from the Pool.')
-param sku skuType
-
-@description('Required. The resource ID of the image reference for the dev box definition. This defines the base image for the dev boxes.')
-param imageReferenceResourceId string
+@description('Optional. A definition of the machines that are created from this Pool. Will be ignored if devBoxDefinitionType is "Reference" or not provided.')
+param devBoxDefinition DevBoxDefinitionType?
 
 // ============== //
 // Resources      //
@@ -81,12 +78,14 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
   location: location
   tags: tags
   properties: {
-    devBoxDefinition: {
-      imageReference: {
-        id: imageReferenceResourceId
-      }
-      sku: sku
-    }
+    devBoxDefinition: !empty(devBoxDefinitionType) && devBoxDefinitionType == 'Value'
+      ? {
+          imageReference: {
+            id: devBoxDefinition.?imageReferenceResourceId
+          }
+          sku: devBoxDefinition.?sku
+        }
+      : null
     devBoxDefinitionName: devBoxDefinitionName
     devBoxDefinitionType: devBoxDefinitionType
     displayName: displayName
@@ -95,10 +94,7 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
     managedVirtualNetworkRegions: managedVirtualNetworkRegions
     networkConnectionName: networkConnectionName
     singleSignOnStatus: singleSignOnStatus
-    stopOnDisconnect: stopOnDisconnect ?? {
-      gracePeriodMinutes: 0
-      status: 'Disabled'
-    }
+    stopOnDisconnect: stopOnDisconnect
     stopOnNoConnect: stopOnNoConnect
     virtualNetworkType: virtualNetworkType
   }
@@ -144,28 +140,24 @@ type StopOnNoConnectConfiguration = {
   status: 'Enabled' | 'Disabled'
 }
 
-@description('The type for managed virtual network regions.')
+@description('The type for dev box definition.')
 @export()
-type ManagedVirtualNetworkRegionType = {
-  @description('Required. The region of the managed virtual network.')
-  region: string
+type DevBoxDefinitionType = {
+  @description('Required. The resource ID of the image reference for the dev box definition.')
+  imageReferenceResourceId: string
 
-  @description('Required. The subnet ID of the managed virtual network.')
-  subnetId: string
-}
+  @description('Required. The SKU configuration for the dev box definition.')
+  sku: {
+    @description('Optional. If the SKU supports scale out/in then the capacity integer should be included. If scale out/in is not possible for the resource this may be omitted.')
+    capacity: int?
 
-@description('The type for SKU configuration of the dev box definition.')
-@export()
-type skuType = {
-  @description('Optional. If the SKU supports scale out/in then the capacity integer should be included. If scale out/in is not possible for the resource this may be omitted.')
-  capacity: int?
+    @description('Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here.')
+    family: string?
 
-  @description('Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here.')
-  family: string?
+    @description('Required. The name of the SKU. E.g. P3. It is typically a letter+number code.')
+    name: string
 
-  @description('Required. The name of the SKU. E.g. P3. It is typically a letter+number code.')
-  name: string
-
-  @description('Optional. The SKU size. When the name field is the combination of tier and some other value, this would be the standalone code.')
-  size: string?
+    @description('Optional. The SKU size. When the name field is the combination of tier and some other value, this would be the standalone code.')
+    size: string?
+  }
 }
