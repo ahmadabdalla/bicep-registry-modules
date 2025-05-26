@@ -38,6 +38,13 @@ param tags object?
 ])
 param localAdministrator string
 
+@description('Required. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network. For the easiest configuration experience, the Microsoft hosted network can be used for dev box deployment. For organizations that require customized networking, use a network connection resource.')
+@allowed([
+  'Managed'
+  'Unmanaged'
+])
+param virtualNetworkType string
+
 @description('Conditional. The region of the managed virtual network. Required if virtualNetworkType is "Managed".')
 param managedVirtualNetworkRegion string?
 
@@ -57,12 +64,8 @@ param stopOnDisconnect stopOnDisconnectConfiguration?
 @description('Optional. Stop on "no connect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects.')
 param stopOnNoConnect stopOnNoConnectConfiguration?
 
-@description('Required. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network. For the easiest configuration experience, the Microsoft hosted network can be used for dev box deployment. For organizations that require customized networking, use a network connection resource.')
-@allowed([
-  'Managed'
-  'Unmanaged'
-])
-param virtualNetworkType string
+@description('Optional. The schedule for the pool. Dev boxes in this pool will auto-stop every day as per the schedule configuration.')
+param schedule poolScheduleType?
 
 // ============== //
 // Resources      //
@@ -97,6 +100,17 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
     stopOnDisconnect: stopOnDisconnect
     stopOnNoConnect: stopOnNoConnect
     virtualNetworkType: virtualNetworkType
+  }
+}
+
+module pool_schedule 'schedule/main.bicep' = if (schedule != null) {
+  name: '${uniqueString(deployment().name, location)}-Pool-Schedule'
+  params: {
+    state: schedule!.state
+    time: schedule!.time
+    timeZone: schedule!.timeZone
+    poolName: pool.name
+    projectName: project.name
   }
 }
 
@@ -160,4 +174,17 @@ type devBoxDefinitionTypeType = {
     @description('Optional. The SKU size. When the name field is the combination of tier and some other value, this would be the standalone code.')
     size: string?
   }
+}
+
+@description('The type for the pool schedule.')
+@export()
+type poolScheduleType = {
+  @description('Required. Indicates whether or not this scheduled task is enabled. Allowed values: Disabled, Enabled.')
+  state: 'Disabled' | 'Enabled'
+
+  @description('Required. The target time to trigger the action. The format is HH:MM. For example, "14:30" for 2:30 PM.')
+  time: string
+
+  @description('Required. The IANA timezone id at which the schedule should execute. For example, "Australia/Sydney", "Canada/Central".')
+  timeZone: string
 }

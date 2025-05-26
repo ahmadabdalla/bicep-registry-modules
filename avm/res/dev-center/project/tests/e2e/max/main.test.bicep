@@ -151,7 +151,21 @@ module testDeployment '../../../main.bicep' = [
           devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
           localAdministrator: 'Enabled'
           virtualNetworkType: 'Managed'
+          singleSignOnStatus: 'Enabled'
+          stopOnDisconnect: {
+            gracePeriodMinutes: 60
+            status: 'Enabled'
+          }
+          stopOnNoConnect: {
+            gracePeriodMinutes: 30
+            status: 'Enabled'
+          }
           managedVirtualNetworkRegion: 'australiaeast'
+          schedule: {
+            state: 'Enabled'
+            time: '18:30'
+            timeZone: 'Australia/Sydney'
+          }
         }
       ]
     }

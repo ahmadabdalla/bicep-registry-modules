@@ -172,17 +172,18 @@ module project_pool 'pool/main.bicep' = [
       projectName: project.name
       displayName: pool.?displayName
       devBoxDefinitionType: pool.devBoxDefinitionType
+      devBoxDefinition: pool.?devBoxDefinition
       devBoxDefinitionName: pool.?devBoxDefinitionName
       location: pool.?location ?? location
       tags: pool.?tags
       localAdministrator: pool.localAdministrator
+      virtualNetworkType: pool.virtualNetworkType
       managedVirtualNetworkRegion: pool.?managedVirtualNetworkRegion
       networkConnectionName: pool.?networkConnectionName
       singleSignOnStatus: pool.?singleSignOnStatus
       stopOnDisconnect: pool.?stopOnDisconnect
       stopOnNoConnect: pool.?stopOnNoConnect
-      virtualNetworkType: pool.virtualNetworkType
-      devBoxDefinition: pool.?devBoxDefinition
+      schedule: pool.?schedule
     }
   }
 ]
@@ -276,7 +277,7 @@ type environmentTypeType = {
   userRoleAssignmentsRoles: additionalRoleAssignmentsType?
 }
 
-import { stopOnDisconnectConfiguration, stopOnNoConnectConfiguration, devBoxDefinitionTypeType } from 'pool/main.bicep'
+import { stopOnDisconnectConfiguration, stopOnNoConnectConfiguration, devBoxDefinitionTypeType, poolScheduleType } from 'pool/main.bicep'
 @sys.description('The type for a Dev Center Project Pool.')
 type poolType = {
   @sys.description('Required. The name of the project pool. This name must be unique within a project and is visible to developers when creating dev boxes.')
@@ -300,6 +301,9 @@ type poolType = {
   @sys.description('Required. Each dev box creator will be granted the selected permissions on the dev boxes they create. Indicates whether owners of Dev Boxes in this pool are added as a "local administrator" or "standard user" on the Dev Box.')
   localAdministrator: 'Enabled' | 'Disabled'
 
+  @sys.description('Required. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network. For the easiest configuration experience, the Microsoft hosted network can be used for dev box deployment. For organizations that require customized networking, use a network connection resource.')
+  virtualNetworkType: 'Managed' | 'Unmanaged'
+
   @sys.description('Conditional. The region of the managed virtual network. Required if virtualNetworkType is "Managed".')
   managedVirtualNetworkRegion: string?
 
@@ -315,6 +319,6 @@ type poolType = {
   @sys.description('Optional. Stop on "no connect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects.')
   stopOnNoConnect: stopOnNoConnectConfiguration?
 
-  @sys.description('Required. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network. For the easiest configuration experience, the Microsoft hosted network can be used for dev box deployment. For organizations that require customized networking, use a network connection resource.')
-  virtualNetworkType: 'Managed' | 'Unmanaged'
+  @sys.description('Optional. Pool schedule settings for Dev Boxes created in this pool. Dev boxes in this pool will be stopped daily at the specified time.')
+  schedule: poolScheduleType?
 }[]
