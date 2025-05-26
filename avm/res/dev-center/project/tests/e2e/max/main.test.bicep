@@ -43,6 +43,7 @@ module nestedDependencies 'dependencies.bicep' = {
     managedIdentity1Name: 'dep-${namePrefix}-msi1-${serviceShort}'
     managedIdentity2Name: 'dep-${namePrefix}-msi2-${serviceShort}'
     roleDefinitionName: 'dep-${namePrefix}-customrole-${serviceShort}'
+    computeGalleryName: 'dep${namePrefix}gal${serviceShort}'
   }
 }
 
@@ -149,6 +150,7 @@ module testDeployment '../../../main.bicep' = [
       pools: [
         {
           name: 'sandbox-pool'
+          displayName: 'My Sandbox Pool - Managed Network'
           devBoxDefinitionType: 'Reference'
           devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
           localAdministrator: 'Enabled'
@@ -168,6 +170,16 @@ module testDeployment '../../../main.bicep' = [
             time: '18:30'
             timeZone: 'Australia/Sydney'
           }
+        }
+        {
+          name: 'sandbox-pool-2'
+          displayName: 'My Sandbox Pool - Unmanaged Network'
+          devBoxDefinitionType: 'Reference'
+          devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
+          localAdministrator: 'Disabled'
+          virtualNetworkType: 'Unmanaged'
+          networkConnectionName: nestedDependencies.outputs.devCenterAttachedNetworkConnectionName
+          singleSignOnStatus: 'Disabled'
         }
       ]
     }

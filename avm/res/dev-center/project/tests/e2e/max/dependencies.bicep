@@ -16,6 +16,9 @@ param managedIdentity2Name string
 @description('Required. The name of the custom role definition to create.')
 param roleDefinitionName string
 
+@description('Required. The name of the Azure Compute Gallery.')
+param computeGalleryName string
+
 @description('Optional. The location to deploy resources to.')
 param location string = resourceGroup().location
 
@@ -36,6 +39,12 @@ resource managedIdentity2 'Microsoft.ManagedIdentity/userAssignedIdentities@2024
 
 resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
   name: devCenterName
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${managedIdentity1.id}': {}
+    }
+  }
   location: location
   properties: {
     projectCatalogSettings: {
@@ -131,8 +140,29 @@ resource devCenterNetworkConnectionAssociation 'Microsoft.DevCenter/devcenters/a
   }
 }
 
+resource azureComputeGallery 'Microsoft.Compute/galleries@2024-03-03' = {
+  name: computeGalleryName
+  location: location
+  properties: {
+    description: 'Azure Compute Gallery for Dev Center'
+  }
+}
+
+resource galleryRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(azureComputeGallery.id, managedIdentity1.id, 'DevCenter Project Admin')
+  scope: azureComputeGallery.id
+  properties: {
+    roleDefinitionId: roleDefinition.id
+    principalId: managedIdentity1.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 @description('The resource ID of the created DevCenter.')
 output devCenterResourceId string = devCenter.id
+
+@description('The name of the craeted Dev Center Attached Network Connection.')
+output devCenterAttachedNetworkConnectionName string = devCenterNetworkConnectionAssociation.name
 
 @description('The principal ID of the first created Managed Identity.')
 output managedIdentity1PrincipalId string = managedIdentity1.properties.principalId
