@@ -1,6 +1,9 @@
 @description('Required. The name of the Dev Center.')
 param devCenterName string
 
+@description('Required. The name of the Dev Center Network Connection to create.')
+param devCenterNetworkConnectionName string
+
 @description('Required. The name of the Dev Center Environment Type to create.')
 param environmentTypeName string
 
@@ -15,6 +18,11 @@ param roleDefinitionName string
 
 @description('Optional. The location to deploy resources to.')
 param location string = resourceGroup().location
+
+@description('Required. The name of the Virtual Network to create.')
+param virtualNetworkName string
+
+var addressPrefix = '10.0.0.0/16'
 
 resource managedIdentity1 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: managedIdentity1Name
@@ -83,6 +91,43 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
         ]
       }
     ]
+  }
+}
+
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+  name: virtualNetworkName
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        addressPrefix
+      ]
+    }
+    subnets: [
+      {
+        name: 'default'
+        properties: {
+          addressPrefix: cidrSubnet(addressPrefix, 24, 0)
+        }
+      }
+    ]
+  }
+}
+
+resource devCenterNetworkConnection 'Microsoft.DevCenter/networkConnections@2025-02-01' = {
+  name: devCenterNetworkConnectionName
+  location: location
+  properties: {
+    domainJoinType: 'AzureADJoin'
+    subnetId: virtualNetwork.properties.subnets[0].id
+  }
+}
+
+resource devCenterNetworkConnectionAssociation 'Microsoft.DevCenter/devcenters/attachednetworks@2025-02-01' = {
+  name: 'default'
+  parent: devCenter
+  properties: {
+    networkConnectionId: devCenterNetworkConnection.id
   }
 }
 

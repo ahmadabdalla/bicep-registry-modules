@@ -307,7 +307,7 @@ type poolType = {
   @sys.description('Conditional. The region of the managed virtual network. Required if virtualNetworkType is "Managed".')
   managedVirtualNetworkRegion: string?
 
-  @sys.description('Conditional. Name of a Network Connection in parent Project of this Pool. Required if virtualNetworkType is "Unmanaged". The region hosting a pool is determined by the region of the network connection. For best performance, create a dev box pool for every region where your developers are located. Will be set to "managedNetwork" if virtualNetworkType is "Managed".')
+  @sys.description('Conditional. Name of a Network Connection in parent Project of this Pool. Required if virtualNetworkType is "Unmanaged". The region hosting a pool is determined by the region of the network connection. For best performance, create a dev box pool for every region where your developers are located. The network connection cannot be configured with "None" domain join type and must be first attached to the Dev Center before used by the pool. Will be set to "managedNetwork" if virtualNetworkType is "Managed".')
   networkConnectionName: string?
 
   @sys.description('Optional. Indicates whether Dev Boxes in this pool are created with single sign on enabled. The also requires that single sign on be enabled on the tenant. Changing this setting will not affect existing dev boxes.')

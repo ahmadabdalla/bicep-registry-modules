@@ -19,7 +19,7 @@ param namePrefix string = '#_namePrefix_#'
 
 // Hardcoded because service not available in all regions
 #disable-next-line no-hardcoded-location
-var enforcedLocation = 'westeurope'
+var enforcedLocation = 'uksouth'
 
 // ============ //
 // Dependencies //
@@ -37,6 +37,8 @@ module nestedDependencies 'dependencies.bicep' = {
   name: '${uniqueString(deployment().name, enforcedLocation)}-nestedDependencies'
   params: {
     devCenterName: 'dep-${namePrefix}-dc-${serviceShort}'
+    devCenterNetworkConnectionName: 'dep-${namePrefix}-dcnc-${serviceShort}'
+    virtualNetworkName: 'dep-${namePrefix}-vnet-${serviceShort}'
     environmentTypeName: 'dep-${namePrefix}-et-${serviceShort}'
     managedIdentity1Name: 'dep-${namePrefix}-msi1-${serviceShort}'
     managedIdentity2Name: 'dep-${namePrefix}-msi2-${serviceShort}'
