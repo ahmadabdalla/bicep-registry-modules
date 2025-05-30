@@ -16,8 +16,12 @@ param projectName string
 @description('Optional. The display name of the pool.')
 param displayName string?
 
-@description('Required. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly.')
-param devBoxDefinitionType string
+@description('Optional. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly.')
+@allowed([
+  'Reference'
+  'Value'
+])
+param devBoxDefinitionType string = 'Reference'
 
 @description('Conditional. Name of a Dev Box definition in parent Project of this Pool. Required if devBoxDefinitionType is "Reference".')
 param devBoxDefinitionName string?
@@ -89,7 +93,7 @@ resource pool 'Microsoft.DevCenter/projects/pools@2025-02-01' = {
           sku: devBoxDefinition.?sku
         }
       : null
-    devBoxDefinitionName: devBoxDefinitionType == 'Reference' ? devBoxDefinitionName : null
+    devBoxDefinitionName: devBoxDefinitionName
     devBoxDefinitionType: devBoxDefinitionType
     displayName: displayName
     licenseType: 'Windows_Client'

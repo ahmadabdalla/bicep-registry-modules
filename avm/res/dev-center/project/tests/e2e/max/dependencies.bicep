@@ -103,7 +103,7 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
   }
 }
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: virtualNetworkName
   location: location
   properties: {
@@ -119,6 +119,38 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
           addressPrefix: cidrSubnet(addressPrefix, 24, 0)
         }
       }
+      //{
+      //  name: 'image'
+      //  properties: {
+      //    addressPrefix: cidrSubnet(addressPrefix, 24, 1)
+      //    privateLinkServiceNetworkPolicies: 'Disabled'
+      //    serviceEndpoints: [
+      //      {
+      //        service: 'Microsoft.Storage'
+      //      }
+      //    ]
+      //  }
+      //}
+      //{
+      //  name: 'deploymentScript'
+      //  properties: {
+      //    addressPrefix: cidrSubnet(addressPrefix, 24, 2)
+      //    privateLinkServiceNetworkPolicies: 'Disabled'
+      //    serviceEndpoints: [
+      //      {
+      //        service: 'Microsoft.Storage'
+      //      }
+      //    ]
+      //    delegations: [
+      //      {
+      //        name: 'aciDelegation'
+      //        properties: {
+      //          serviceName: 'Microsoft.ContainerInstance/containerGroups'
+      //        }
+      //      }
+      //    ]
+      //  }
+      //}
     ]
   }
 }
@@ -149,14 +181,25 @@ resource azureComputeGallery 'Microsoft.Compute/galleries@2024-03-03' = {
 }
 
 resource galleryRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(azureComputeGallery.id, managedIdentity1.id, 'DevCenter Project Admin')
-  scope: azureComputeGallery.id
+  name: guid(azureComputeGallery.id, managedIdentity1.id, 'Contributor')
+  scope: azureComputeGallery
   properties: {
     roleDefinitionId: roleDefinition.id
     principalId: managedIdentity1.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
+
+resource devCenterGallery 'Microsoft.DevCenter/devcenters/galleries@2025-02-01' = {
+  name: azureComputeGallery.name
+  parent: devCenter
+  properties: {
+    galleryResourceId: azureComputeGallery.id
+  }
+}
+
+@description('The name of the created Dev Center.')
+output devCenterName string = devCenter.name
 
 @description('The resource ID of the created DevCenter.')
 output devCenterResourceId string = devCenter.id
@@ -184,3 +227,15 @@ output roleDefinitionId string = roleDefinition.name
 
 @description('The name of the Dev Center Devbox Definition.')
 output devboxDefinitionName string = devboxDefinition.name
+
+@description('The name of the Azure Compute Gallery.')
+output azureComputeGalleryName string = azureComputeGallery.name
+
+@description('The name of the created Virtual Network.')
+output virtualNetworkName string = virtualNetwork.name
+
+@description('The address space of the created Virtual Network.')
+output virtualNetworkAddressSpace string = virtualNetwork.properties.addressSpace.addressPrefixes[0]
+
+@description('The subnets of the created Virtual Network.')
+output virtualNetworkSubnets array = virtualNetwork.properties.subnets

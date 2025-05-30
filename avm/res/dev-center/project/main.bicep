@@ -171,7 +171,7 @@ module project_pool 'pool/main.bicep' = [
       name: pool.name
       projectName: project.name
       displayName: pool.?displayName
-      devBoxDefinitionType: pool.devBoxDefinitionType
+      devBoxDefinitionType: pool.?devBoxDefinitionType
       devBoxDefinition: pool.?devBoxDefinition
       devBoxDefinitionName: pool.?devBoxDefinitionName
       location: pool.?location ?? location
@@ -286,8 +286,8 @@ type poolType = {
   @sys.description('Optional. The display name of the pool.')
   displayName: string?
 
-  @sys.description('Required. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly.')
-  devBoxDefinitionType: 'Reference' | 'Value'
+  @sys.description('Optional. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly. Defauts to "Reference".')
+  devBoxDefinitionType: 'Reference' | 'Value'?
 
   @sys.description('Conditional. Name of a Dev Box definition in parent Project of this Pool. Required if devBoxDefinitionType is "Reference".')
   devBoxDefinitionName: string?

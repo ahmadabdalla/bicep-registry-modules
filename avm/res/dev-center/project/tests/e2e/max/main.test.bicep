@@ -27,7 +27,7 @@ var enforcedLocation = 'uksouth'
 
 // General resources
 // =================
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2025-03-01' = {
   name: resourceGroupName
   location: enforcedLocation
 }
@@ -46,6 +46,58 @@ module nestedDependencies 'dependencies.bicep' = {
     computeGalleryName: 'dep${namePrefix}gal${serviceShort}'
   }
 }
+
+//module imageBuilder 'br/public:avm/ptn/virtual-machine-images/azure-image-builder:0.1.6' = {
+//  name: '${uniqueString(deployment().name, enforcedLocation)}-imageBuilder'
+//  params: {
+//    imageTemplateName: 'dep-${namePrefix}-it-${serviceShort}'
+//    deploymentsToPerform: 'All'
+//    waitForImageBuild: true
+//    resourceGroupName: resourceGroupName
+//    waitForImageBuildTimeout: 'PT1H'
+//    virtualNetworkName: nestedDependencies.outputs.virtualNetworkName
+//    virtualNetworkAddressPrefix: nestedDependencies.outputs.virtualNetworkAddressSpace
+//    imageSubnetName: nestedDependencies.outputs.virtualNetworkSubnets[1].name
+//    virtualNetworkSubnetAddressPrefix: nestedDependencies.outputs.virtualNetworkSubnets[1].properties.addressPrefix
+//    deploymentScriptSubnetName: nestedDependencies.outputs.virtualNetworkSubnets[2].name
+//    virtualNetworkDeploymentScriptSubnetAddressPrefix: nestedDependencies.outputs.virtualNetworkSubnets[2].properties.addressPrefix
+//    imageTemplateResourceGroupName: ''
+//    location: enforcedLocation
+//    assetsStorageAccountName: 'depst${namePrefix}${serviceShort}'
+//    assetsStorageAccountContainerName: 'dep${namePrefix}assets${serviceShort}'
+//    storageDeploymentScriptName: 'dep-${namePrefix}-ds-${serviceShort}-storage'
+//    waitDeploymentScriptName: 'dep-${namePrefix}-ds-${serviceShort}-wait'
+//    imageTemplateDeploymentScriptName: 'dep-${namePrefix}-ds-${serviceShort}-it'
+//    deploymentScriptStorageAccountName: 'depst${namePrefix}${serviceShort}ds'
+//    computeGalleryName: 'dep${namePrefix}gal${serviceShort}'
+//    computeGalleryImageDefinitionName: 'dep-${namePrefix}-galid-${serviceShort}'
+//    imageManagedIdentityName: 'dep-${namePrefix}-msi1-${serviceShort}'
+//    deploymentScriptManagedIdentityName: 'dep-${namePrefix}-msi1-${serviceShort}'
+//    computeGalleryImageDefinitions: [
+//      {
+//        name: 'dep-${namePrefix}-galid-${serviceShort}'
+//        hyperVGeneration: 'V2'
+//        identifier: {
+//          offer: 'avmDevbox'
+//          publisher: 'avm'
+//          sku: 'devbox-avmwindows'
+//        }
+//        osState: 'Generalized'
+//        osType: 'Windows'
+//        securityType: 'TrustedLaunch'
+//        isHibernateSupported: true
+//        architecture: 'x64'
+//      }
+//    ]
+//    imageTemplateImageSource: {
+//      offer: 'visualstudioplustools'
+//      publisher: 'microsoftvisualstudio'
+//      sku: 'vs-2022-comm-general-win11-m365-gen2'
+//      type: 'PlatformImage'
+//      version: 'latest'
+//    }
+//  }
+//}
 
 // ============== //
 // Test Execution //
@@ -83,6 +135,11 @@ module testDeployment '../../../main.bicep' = [
           principalType: 'ServicePrincipal'
         }
         {
+          principalId: deployer().objectId
+          roleDefinitionIdOrName: 'DevCenter Project Admin'
+          principalType: 'ServicePrincipal'
+        }
+        {
           name: guid('Custom seed ${namePrefix}${serviceShort}')
           roleDefinitionIdOrName: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
           principalId: nestedDependencies.outputs.managedIdentity1PrincipalId
@@ -97,90 +154,106 @@ module testDeployment '../../../main.bicep' = [
           principalType: 'ServicePrincipal'
         }
       ]
-      catalogSettings: {
-        catalogItemSyncTypes: [
-          'EnvironmentDefinition'
-          'ImageDefinition'
-        ]
-      }
-      maxDevBoxesPerUser: 2
-      environmentTypes: [
-        {
-          name: 'dep-${namePrefix}-et-${serviceShort}'
-          displayName: 'My Sandbox Environment Type'
-          status: 'Enabled'
-          deploymentTargetSubscriptionResourceId: subscription().id
-          tags: {
-            'prj-type': 'sandbox'
-          }
-          managedIdentities: {
-            systemAssigned: false
-            userAssignedResourceIds: [
-              nestedDependencies.outputs.managedIdentityResourceId
-            ]
-          }
-          roleAssignments: [
-            {
-              principalId: nestedDependencies.outputs.managedIdentity1PrincipalId
-              roleDefinitionIdOrName: 'DevCenter Project Admin'
-              principalType: 'ServicePrincipal'
-            }
-          ]
-          creatorRoleAssignmentRoles: [
-            'acdd72a7-3385-48ef-bd42-f606fba81ae7' // 'Reader'
-            'b24988ac-6180-42a0-ab88-20f7382dd24c' // 'Contributor'
-          ]
-          userRoleAssignmentsRoles: [
-            {
-              objectId: nestedDependencies.outputs.managedIdentity1PrincipalId
-              roleDefinitions: [
-                'e503ece1-11d0-4e8e-8e2c-7a6c3bf38815' // 'AzureML Compute Operator'
-                'b59867f0-fa02-499b-be73-45a86b5b3e1c' // 'Cognitive Services Data Reader'
-              ]
-            }
-            {
-              objectId: nestedDependencies.outputs.managedIdentity2PrincipalId
-              roleDefinitions: [
-                nestedDependencies.outputs.roleDefinitionId // Custom role
-              ]
-            }
-          ]
-        }
-      ]
+      //catalogSettings: {
+      //  catalogItemSyncTypes: [
+      //    'EnvironmentDefinition'
+      //    'ImageDefinition'
+      //  ]
+      //}
+      //maxDevBoxesPerUser: 2
+      //environmentTypes: [
+      //  {
+      //    name: 'dep-${namePrefix}-et-${serviceShort}'
+      //    displayName: 'My Sandbox Environment Type'
+      //    status: 'Enabled'
+      //    deploymentTargetSubscriptionResourceId: subscription().id
+      //    tags: {
+      //      'prj-type': 'sandbox'
+      //    }
+      //    managedIdentities: {
+      //      systemAssigned: false
+      //      userAssignedResourceIds: [
+      //        nestedDependencies.outputs.managedIdentityResourceId
+      //      ]
+      //    }
+      //    roleAssignments: [
+      //      {
+      //        principalId: nestedDependencies.outputs.managedIdentity1PrincipalId
+      //        roleDefinitionIdOrName: 'DevCenter Project Admin'
+      //        principalType: 'ServicePrincipal'
+      //      }
+      //    ]
+      //    creatorRoleAssignmentRoles: [
+      //      'acdd72a7-3385-48ef-bd42-f606fba81ae7' // 'Reader'
+      //      'b24988ac-6180-42a0-ab88-20f7382dd24c' // 'Contributor'
+      //    ]
+      //    userRoleAssignmentsRoles: [
+      //      {
+      //        objectId: nestedDependencies.outputs.managedIdentity1PrincipalId
+      //        roleDefinitions: [
+      //          'e503ece1-11d0-4e8e-8e2c-7a6c3bf38815' // 'AzureML Compute Operator'
+      //          'b59867f0-fa02-499b-be73-45a86b5b3e1c' // 'Cognitive Services Data Reader'
+      //        ]
+      //      }
+      //      {
+      //        objectId: nestedDependencies.outputs.managedIdentity2PrincipalId
+      //        roleDefinitions: [
+      //          nestedDependencies.outputs.roleDefinitionId // Custom role
+      //        ]
+      //      }
+      //    ]
+      //  }
+      //]
       pools: [
-        {
-          name: 'sandbox-pool'
-          displayName: 'My Sandbox Pool - Managed Network'
-          devBoxDefinitionType: 'Reference'
-          devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
-          localAdministrator: 'Enabled'
-          virtualNetworkType: 'Managed'
-          singleSignOnStatus: 'Enabled'
-          stopOnDisconnect: {
-            gracePeriodMinutes: 60
-            status: 'Enabled'
-          }
-          stopOnNoConnect: {
-            gracePeriodMinutes: 30
-            status: 'Enabled'
-          }
-          managedVirtualNetworkRegion: 'australiaeast'
-          schedule: {
-            state: 'Enabled'
-            time: '18:30'
-            timeZone: 'Australia/Sydney'
-          }
-        }
-        {
-          name: 'sandbox-pool-2'
-          displayName: 'My Sandbox Pool - Unmanaged Network'
-          devBoxDefinitionType: 'Reference'
-          devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
-          localAdministrator: 'Disabled'
-          virtualNetworkType: 'Unmanaged'
-          networkConnectionName: nestedDependencies.outputs.devCenterAttachedNetworkConnectionName
-          singleSignOnStatus: 'Disabled'
-        }
+        //{
+        //  name: 'sandbox-pool'
+        //  displayName: 'My Sandbox Pool - Managed Network'
+        //  devBoxDefinitionType: 'Reference'
+        //  devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
+        //  localAdministrator: 'Enabled'
+        //  virtualNetworkType: 'Managed'
+        //  singleSignOnStatus: 'Enabled'
+        //  stopOnDisconnect: {
+        //    gracePeriodMinutes: 60
+        //    status: 'Enabled'
+        //  }
+        //  stopOnNoConnect: {
+        //    gracePeriodMinutes: 30
+        //    status: 'Enabled'
+        //  }
+        //  managedVirtualNetworkRegion: 'australiaeast'
+        //  schedule: {
+        //    state: 'Enabled'
+        //    time: '18:30'
+        //    timeZone: 'Australia/Sydney'
+        //  }
+        //}
+        //{
+        //  name: 'sandbox-pool-2'
+        //  displayName: 'My Sandbox Pool - Unmanaged Network'
+        //  devBoxDefinitionType: 'Reference'
+        //  devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
+        //  localAdministrator: 'Disabled'
+        //  virtualNetworkType: 'Unmanaged'
+        //  networkConnectionName: nestedDependencies.outputs.devCenterAttachedNetworkConnectionName
+        //  singleSignOnStatus: 'Disabled'
+        //}
+        //{
+        //  name: 'sandbox-pool-3'
+        //  displayName: 'My Sandbox Pool - Unmanaged Network - Value'
+        //  devBoxDefinitionType: 'Value'
+        //  devBoxDefinitionName: 'test'
+        //  devBoxDefinition: {
+        //    sku: {
+        //      name: 'Standard_D2s_v3'
+        //    }
+        //    imageReferenceResourceId: '/subscriptions/#_subscriptionId_#/resourceGroups/dep-#_namePrefix_#-devcenter.project-dcpmax-rg/providers/Microsoft.Compute/galleries/dep#_namePrefix_#galdcpmax/images/dep-#_namePrefix_#-galid-dcpmax/versions/1.0.0'
+        //  }
+        //  localAdministrator: 'Disabled'
+        //  virtualNetworkType: 'Unmanaged'
+        //  networkConnectionName: nestedDependencies.outputs.devCenterAttachedNetworkConnectionName
+        //  singleSignOnStatus: 'Enabled'
+        //}
       ]
     }
   }
