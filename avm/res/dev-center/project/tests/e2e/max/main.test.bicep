@@ -103,13 +103,16 @@ module nestedDependencies 'dependencies.bicep' = {
 // Test Execution //
 // ============== //
 
+var projectName = '${namePrefix}${serviceShort}001'
+var projectExpectedResourceID = '${resourceGroup.id}/providers/Microsoft.DevCenter/projects/${projectName}'
+
 @batchSize(1)
 module testDeployment '../../../main.bicep' = [
   for iteration in ['init', 'idem']: {
     scope: resourceGroup
     name: '${uniqueString(deployment().name, enforcedLocation)}-test-${serviceShort}-${iteration}'
     params: {
-      name: '${namePrefix}${serviceShort}001'
+      name: projectName
       displayName: 'My Dev Center Project'
       description: 'This is a test project for the Dev Center project module.'
       devCenterResourceId: nestedDependencies.outputs.devCenterResourceId
@@ -137,7 +140,6 @@ module testDeployment '../../../main.bicep' = [
         {
           principalId: deployer().objectId
           roleDefinitionIdOrName: 'DevCenter Project Admin'
-          principalType: 'ServicePrincipal'
         }
         {
           name: guid('Custom seed ${namePrefix}${serviceShort}')
@@ -154,13 +156,13 @@ module testDeployment '../../../main.bicep' = [
           principalType: 'ServicePrincipal'
         }
       ]
-      //catalogSettings: {
-      //  catalogItemSyncTypes: [
-      //    'EnvironmentDefinition'
-      //    'ImageDefinition'
-      //  ]
-      //}
-      //maxDevBoxesPerUser: 2
+      catalogSettings: {
+        catalogItemSyncTypes: [
+          'EnvironmentDefinition'
+          'ImageDefinition'
+        ]
+      }
+      maxDevBoxesPerUser: 2
       //environmentTypes: [
       //  {
       //    name: 'dep-${namePrefix}-et-${serviceShort}'
@@ -238,22 +240,31 @@ module testDeployment '../../../main.bicep' = [
         //  networkConnectionName: nestedDependencies.outputs.devCenterAttachedNetworkConnectionName
         //  singleSignOnStatus: 'Disabled'
         //}
-        //{
-        //  name: 'sandbox-pool-3'
-        //  displayName: 'My Sandbox Pool - Unmanaged Network - Value'
-        //  devBoxDefinitionType: 'Value'
-        //  devBoxDefinitionName: 'test'
-        //  devBoxDefinition: {
-        //    sku: {
-        //      name: 'Standard_D2s_v3'
-        //    }
-        //    imageReferenceResourceId: '/subscriptions/#_subscriptionId_#/resourceGroups/dep-#_namePrefix_#-devcenter.project-dcpmax-rg/providers/Microsoft.Compute/galleries/dep#_namePrefix_#galdcpmax/images/dep-#_namePrefix_#-galid-dcpmax/versions/1.0.0'
-        //  }
-        //  localAdministrator: 'Disabled'
-        //  virtualNetworkType: 'Unmanaged'
-        //  networkConnectionName: nestedDependencies.outputs.devCenterAttachedNetworkConnectionName
-        //  singleSignOnStatus: 'Enabled'
-        //}
+        {
+          name: 'sandbox-pool-3'
+          displayName: 'My Sandbox Pool - Unmanaged Network - Value'
+          devBoxDefinitionType: 'Value'
+          devBoxDefinitionName: '~Catalog~${catalogName}~frontend-dev' //'~Catalog~eshop~frontend-dev'
+          devBoxDefinition: {
+            imageReferenceResourceId: '${projectExpectedResourceID}/images/~Catalog~${catalogName}~frontend-dev'
+            sku: {
+              name: 'general_i_8c32gb256ssd_v2'
+            }
+          }
+          networkConnectionName: 'managedNetwork'
+          localAdministrator: 'Enabled'
+          stopOnDisconnect: {
+            status: 'Enabled'
+            gracePeriodMinutes: 60
+          }
+          stopOnNoConnect: {
+            status: 'Enabled'
+            gracePeriodMinutes: 60
+          }
+          singleSignOnStatus: 'Enabled'
+          virtualNetworkType: 'Managed'
+          managedVirtualNetworkRegion: 'uksouth'
+        }
       ]
     }
   }
