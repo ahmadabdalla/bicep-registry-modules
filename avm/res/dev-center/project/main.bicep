@@ -266,7 +266,7 @@ type catalogSettingsType = {
   catalogItemSyncTypes: ('EnvironmentDefinition' | 'ImageDefinition')[]?
 }
 
-import { additionalRoleAssignmentsType } from 'environment-type/main.bicep'
+import { userRoleAssignmentsRolesType } from 'environment-type/main.bicep'
 @export()
 @sys.description('The type for the environment type.')
 type environmentTypeType = {
@@ -295,7 +295,7 @@ type environmentTypeType = {
   tags: object?
 
   @sys.description('Optional. A collection of additional object IDs of users, groups, service principals or managed identities be granted permissions on each environment of this type. Each identity can have multiple role definitions (permissions) GUIDs assigned to it. These can be either built-in or custom role definitions.')
-  userRoleAssignmentsRoles: additionalRoleAssignmentsType?
+  userRoleAssignmentsRoles: userRoleAssignmentsRolesType[]?
 }
 
 import { stopOnDisconnectType, stopOnNoConnectType, devBoxDefinitionTypeType, poolScheduleType } from 'pool/main.bicep'

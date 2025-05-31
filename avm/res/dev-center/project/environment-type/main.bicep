@@ -33,7 +33,7 @@ param location string = resourceGroup().location
 param creatorRoleAssignmentRoles string[]
 
 @description('Optional. A collection of additional object IDs of users, groups, service principals or managed identities be granted permissions on each environment of this type. Each identity can have multiple role definitions (permissions) GUIDs assigned to it. These can be either built-in or custom role definitions.')
-param userRoleAssignmentsRoles additionalRoleAssignmentsType?
+param userRoleAssignmentsRoles userRoleAssignmentsRolesType[]?
 
 @description('Optional. Resource tags to apply to the environment type.')
 param tags object?
@@ -184,9 +184,9 @@ output systemAssignedMIPrincipalId string? = environmentType.?identity.?principa
 
 @description('The type for additional role assignments.')
 @export()
-type additionalRoleAssignmentsType = {
+type userRoleAssignmentsRolesType = {
   @description('Required. The object ID of the user, group, service principal, or managed identity.')
   objectId: string
   @description('Required. An array of role definition GUIDs to assign to the object.')
   roleDefinitions: array
-}[]
+}

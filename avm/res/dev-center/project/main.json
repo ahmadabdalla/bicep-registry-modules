@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "16875599756052341967"
+      "templateHash": "13735459206395025486"
     },
     "name": "Dev Center Project",
     "description": "This module deploys a Dev Center Project."
@@ -99,7 +99,10 @@
           }
         },
         "userRoleAssignmentsRoles": {
-          "$ref": "#/definitions/additionalRoleAssignmentsType",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/userRoleAssignmentsRolesType"
+          },
           "nullable": true,
           "metadata": {
             "description": "Optional. A collection of additional object IDs of users, groups, service principals or managed identities be granted permissions on each environment of this type. Each identity can have multiple role definitions (permissions) GUIDs assigned to it. These can be either built-in or custom role definitions."
@@ -274,32 +277,6 @@
       "metadata": {
         "__bicep_export!": true,
         "description": "The type for a Dev Center Project Catalog."
-      }
-    },
-    "additionalRoleAssignmentsType": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "objectId": {
-            "type": "string",
-            "metadata": {
-              "description": "Required. The object ID of the user, group, service principal, or managed identity."
-            }
-          },
-          "roleDefinitions": {
-            "type": "array",
-            "metadata": {
-              "description": "Required. An array of role definition GUIDs to assign to the object."
-            }
-          }
-        }
-      },
-      "metadata": {
-        "description": "The type for additional role assignments.",
-        "__bicep_imported_from!": {
-          "sourceTemplate": "environment-type/main.bicep"
-        }
       }
     },
     "devBoxDefinitionTypeType": {
@@ -611,6 +588,29 @@
           "sourceTemplate": "pool/main.bicep"
         }
       }
+    },
+    "userRoleAssignmentsRolesType": {
+      "type": "object",
+      "properties": {
+        "objectId": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The object ID of the user, group, service principal, or managed identity."
+          }
+        },
+        "roleDefinitions": {
+          "type": "array",
+          "metadata": {
+            "description": "Required. An array of role definition GUIDs to assign to the object."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for additional role assignments.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "environment-type/main.bicep"
+        }
+      }
     }
   },
   "parameters": {
@@ -881,28 +881,25 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "10134378198494772567"
+              "templateHash": "12343089474921387310"
             },
             "name": "Dev Center Project Environment Type",
             "description": "This module deploys a Dev Center Project Environment Type."
           },
           "definitions": {
-            "additionalRoleAssignmentsType": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "objectId": {
-                    "type": "string",
-                    "metadata": {
-                      "description": "Required. The object ID of the user, group, service principal, or managed identity."
-                    }
-                  },
-                  "roleDefinitions": {
-                    "type": "array",
-                    "metadata": {
-                      "description": "Required. An array of role definition GUIDs to assign to the object."
-                    }
+            "userRoleAssignmentsRolesType": {
+              "type": "object",
+              "properties": {
+                "objectId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. The object ID of the user, group, service principal, or managed identity."
+                  }
+                },
+                "roleDefinitions": {
+                  "type": "array",
+                  "metadata": {
+                    "description": "Required. An array of role definition GUIDs to assign to the object."
                   }
                 }
               },
@@ -1071,7 +1068,10 @@
               }
             },
             "userRoleAssignmentsRoles": {
-              "$ref": "#/definitions/additionalRoleAssignmentsType",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/userRoleAssignmentsRolesType"
+              },
               "nullable": true,
               "metadata": {
                 "description": "Optional. A collection of additional object IDs of users, groups, service principals or managed identities be granted permissions on each environment of this type. Each identity can have multiple role definitions (permissions) GUIDs assigned to it. These can be either built-in or custom role definitions."
