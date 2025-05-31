@@ -155,7 +155,7 @@ resource galleryRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
   name: guid(azureComputeGallery.id, managedIdentity1.id, 'Contributor')
   scope: azureComputeGallery
   properties: {
-    roleDefinitionId: roleDefinition.id
+    roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor
     principalId: managedIdentity1.properties.principalId
     principalType: 'ServicePrincipal'
   }
@@ -178,13 +178,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2024-11-01' = {
       name: 'standard'
     }
     tenantId: tenant().tenantId
-    enablePurgeProtection: true // Required for encryption to work
     softDeleteRetentionInDays: 7
-    enabledForTemplateDeployment: true
-    enabledForDiskEncryption: true
-    enabledForDeployment: true
     enableRbacAuthorization: true
-    accessPolicies: []
   }
 
   resource secret 'secrets' = {
