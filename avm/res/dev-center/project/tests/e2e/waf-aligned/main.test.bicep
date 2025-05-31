@@ -27,7 +27,7 @@ var enforcedLocation = 'westeurope'
 
 // General resources
 // =================
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2025-03-01' = {
   name: resourceGroupName
   location: enforcedLocation
 }
@@ -37,6 +37,7 @@ module nestedDependencies 'dependencies.bicep' = {
   name: '${uniqueString(deployment().name, enforcedLocation)}-nestedDependencies'
   params: {
     devCenterName: 'dep-${namePrefix}-dc-${serviceShort}'
+    environmentTypeName: 'dep-${namePrefix}-et-${serviceShort}'
     managedIdentityName: 'dep-${namePrefix}-msi-${serviceShort}'
   }
 }
@@ -52,13 +53,54 @@ module testDeployment '../../../main.bicep' = [
     name: '${uniqueString(deployment().name, enforcedLocation)}-test-${serviceShort}-${iteration}'
     params: {
       name: '${namePrefix}${serviceShort}001'
+      displayName: 'My Dev Center Project'
+      description: 'This is a test project for the Dev Center project module.'
       devCenterResourceId: nestedDependencies.outputs.devCenterResourceId
       managedIdentities: {
         userAssignedResourceIds: [
           nestedDependencies.outputs.managedIdentityResourceId
         ]
       }
+      catalogSettings: {
+        catalogItemSyncTypes: [
+          'EnvironmentDefinition'
+          'ImageDefinition'
+        ]
+      }
       maxDevBoxesPerUser: 2
+      environmentTypes: [
+        {
+          name: 'dep-${namePrefix}-et-${serviceShort}'
+          displayName: 'My Sandbox Environment Type'
+          status: 'Enabled'
+          deploymentTargetSubscriptionResourceId: subscription().id
+          managedIdentities: {
+            systemAssigned: false
+            userAssignedResourceIds: [
+              nestedDependencies.outputs.managedIdentityResourceId
+            ]
+          }
+          creatorRoleAssignmentRoles: [
+            'acdd72a7-3385-48ef-bd42-f606fba81ae7' // 'Reader'
+          ]
+        }
+      ]
+      pools: [
+        {
+          name: 'sandbox-pool'
+          displayName: 'My Sandbox Pool - Managed Network'
+          devBoxDefinitionType: 'Reference'
+          devBoxDefinitionName: nestedDependencies.outputs.devboxDefinitionName
+          localAdministrator: 'Disabled'
+          virtualNetworkType: 'Managed'
+          singleSignOnStatus: 'Enabled'
+          stopOnDisconnect: {
+            gracePeriodMinutes: 60
+            status: 'Enabled'
+          }
+          managedVirtualNetworkRegion: 'westeurope'
+        }
+      ]
     }
   }
 ]

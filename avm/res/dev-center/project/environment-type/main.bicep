@@ -108,18 +108,6 @@ var formattedRoleAssignments = [
   })
 ]
 
-// Transform the user-friendly array into the required Azure object format (roles as GUIDs, no mapping)
-var userRoleAssignments = reduce(
-  userRoleAssignmentsRoles!,
-  {},
-  (cur, next) =>
-    union(cur, {
-      '${next.objectId}': {
-        roles: reduce(next.roleDefinitions, {}, (roleCur, roleNext) => union(roleCur, { '${roleNext}': {} }))
-      }
-    })
-)
-
 // ============== //
 // Resources      //
 // ============== //
@@ -141,7 +129,18 @@ resource environmentType 'Microsoft.DevCenter/projects/environmentTypes@2025-02-
     creatorRoleAssignment: {
       roles: reduce(map(creatorRoleAssignmentRoles, (role) => { '${role}': {} }), {}, (cur, next) => union(cur, next))
     }
-    userRoleAssignments: !empty(userRoleAssignments) ? userRoleAssignments : null
+    userRoleAssignments: !empty(userRoleAssignmentsRoles) // Transform the user-friendly array into the required Azure object format (roles as GUIDs, no mapping)
+      ? reduce(
+          userRoleAssignmentsRoles ?? [],
+          {},
+          (cur, next) =>
+            union(cur, {
+              '${next.objectId}': {
+                roles: reduce(next.roleDefinitions, {}, (roleCur, roleNext) => union(roleCur, { '${roleNext}': {} }))
+              }
+            })
+        )
+      : null
   }
 }
 

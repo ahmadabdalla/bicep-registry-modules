@@ -83,6 +83,6 @@ type sourceType = {
   @description('Optional. The folder path within the repository. Defaults to "/".')
   path: string?
 
-  @description('Optional. A reference to the Key Vault secret containing a Personal Access Token (PAT) to authenticate to a Git repository.')
+  @description('Optional. A reference to the Key Vault secret containing a Personal Access Token (PAT) to authenticate to a Git repository. Not required for Azure DevOps with Managed Identity authentication or GitHub with App Center.')
   secretIdentifier: string?
 }

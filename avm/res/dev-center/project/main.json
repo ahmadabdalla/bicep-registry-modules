@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "11241469177137231896"
+      "templateHash": "11127603741884130241"
     },
     "name": "Dev Center Project",
     "description": "This module deploys a Dev Center Project."
@@ -137,14 +137,13 @@
             ],
             "nullable": true,
             "metadata": {
-              "description": "Optional. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly. Defauts to \"Reference\"."
+              "description": "Optional. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly. Defaults to \"Reference\"."
             }
           },
           "devBoxDefinitionName": {
             "type": "string",
-            "nullable": true,
             "metadata": {
-              "description": "Conditional. Name of a Dev Box definition in parent Project of this Pool. Required if devBoxDefinitionType is \"Reference\"."
+              "description": "Required. Name of a Dev Box definition in parent Project of this Pool. If creating a pool from a definition defined in the Dev Center, then this will be the name of the definition. If creating a pool from a custom definition (e.g. Team Customizations), first the catalog must be added to this project, and second must use the format \"\\~Catalog\\~{catalogName}\\~{imagedefinition YAML name}\" (e.g. \"\\~Catalog\\~eshopRepo\\~frontend-dev\")."
             }
           },
           "devBoxDefinition": {
@@ -224,7 +223,7 @@
             "$ref": "#/definitions/poolScheduleType",
             "nullable": true,
             "metadata": {
-              "description": "Optional. Pool schedule settings for Dev Boxes created in this pool. Dev boxes in this pool will be stopped daily at the specified time."
+              "description": "Optional. The schedule for the pool. Dev boxes in this pool will auto-stop every day as per the schedule configuration."
             }
           }
         }
@@ -312,7 +311,7 @@
         "imageReferenceResourceId": {
           "type": "string",
           "metadata": {
-            "description": "Required. The resource ID of the image reference for the dev box definition."
+            "description": "Required. The resource ID of the image reference for the dev box definition. This would be the resource ID of the project image where the image has the same name as the dev box definition name. If the dev box definition is created from a catalog, then this would be the resource ID of the image in the project that was created from the catalog. The format is \"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevCenter/projects/{projectName}/images/~Catalog~{catalogName}~{imagedefinition YAML name}\"."
           }
         },
         "sku": {
@@ -551,7 +550,7 @@
           "type": "string",
           "nullable": true,
           "metadata": {
-            "description": "Optional. A reference to the Key Vault secret containing a Personal Access Token (PAT) to authenticate to a Git repository."
+            "description": "Optional. A reference to the Key Vault secret containing a Personal Access Token (PAT) to authenticate to a Git repository. Not required for Azure DevOps with Managed Identity authentication or GitHub with App Center."
           }
         }
       },
@@ -882,7 +881,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "613177101320680112"
+              "templateHash": "10134378198494772567"
             },
             "name": "Dev Center Project Environment Type",
             "description": "This module deploys a Dev Center Project Environment Type."
@@ -1126,8 +1125,7 @@
               "Reader": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
               "Role Based Access Control Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f58310d9-a9f6-439a-9e8d-f62e7b41a168')]",
               "User Access Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]"
-            },
-            "userRoleAssignments": "[reduce(parameters('userRoleAssignmentsRoles'), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), createObject(format('{0}', lambdaVariables('next').objectId), createObject('roles', reduce(lambdaVariables('next').roleDefinitions, createObject(), lambda('roleCur', 'roleNext', union(lambdaVariables('roleCur'), createObject(format('{0}', lambdaVariables('roleNext')), createObject())))))))))]"
+            }
           },
           "resources": {
             "project": {
@@ -1150,7 +1148,7 @@
                 "creatorRoleAssignment": {
                   "roles": "[reduce(map(parameters('creatorRoleAssignmentRoles'), lambda('role', createObject(format('{0}', lambdaVariables('role')), createObject()))), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), lambdaVariables('next'))))]"
                 },
-                "userRoleAssignments": "[if(not(empty(variables('userRoleAssignments'))), variables('userRoleAssignments'), null())]"
+                "userRoleAssignments": "[if(not(empty(parameters('userRoleAssignmentsRoles'))), reduce(coalesce(parameters('userRoleAssignmentsRoles'), createArray()), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), createObject(format('{0}', lambdaVariables('next').objectId), createObject('roles', reduce(lambdaVariables('next').roleDefinitions, createObject(), lambda('roleCur', 'roleNext', union(lambdaVariables('roleCur'), createObject(format('{0}', lambdaVariables('roleNext')), createObject()))))))))), null())]"
               }
             },
             "environmentType_roleAssignments": {
@@ -1264,7 +1262,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "10680486566691219824"
+              "templateHash": "4469995674450843452"
             },
             "name": "Dev Center Project Catalog",
             "description": "This module deploys a Dev Center Project Catalog."
@@ -1297,7 +1295,7 @@
                   "type": "string",
                   "nullable": true,
                   "metadata": {
-                    "description": "Optional. A reference to the Key Vault secret containing a Personal Access Token (PAT) to authenticate to a Git repository."
+                    "description": "Optional. A reference to the Key Vault secret containing a Personal Access Token (PAT) to authenticate to a Git repository. Not required for Azure DevOps with Managed Identity authentication or GitHub with App Center."
                   }
                 }
               },
@@ -1488,7 +1486,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "3283624186609841184"
+              "templateHash": "11943427937088779303"
             },
             "name": "Dev Center Project Pool",
             "description": "This module deploys a Dev Center Project Pool."
@@ -1550,7 +1548,7 @@
                 "imageReferenceResourceId": {
                   "type": "string",
                   "metadata": {
-                    "description": "Required. The resource ID of the image reference for the dev box definition."
+                    "description": "Required. The resource ID of the image reference for the dev box definition. This would be the resource ID of the project image where the image has the same name as the dev box definition name. If the dev box definition is created from a catalog, then this would be the resource ID of the image in the project that was created from the catalog. The format is \"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevCenter/projects/{projectName}/images/~Catalog~{catalogName}~{imagedefinition YAML name}\"."
                   }
                 },
                 "sku": {
@@ -1662,7 +1660,7 @@
             "devBoxDefinitionName": {
               "type": "string",
               "metadata": {
-                "description": "Required. Name of a Dev Box definition in parent Project of this Pool. If creating a pool from a definition defined in the Dev Center, then this will be the name of the definition. If creating a pool from a custom definition (e.g. Team Customizations), first the catalog must be added to this project, and second must use the format \"\\~Catalog\\~[catalogName]\\~[imagedefinition YAML name]\" (e.g. \"\\~Catalog\\~eshopRepo\\~frontend-dev\")."
+                "description": "Required. Name of a Dev Box definition in parent Project of this Pool. If creating a pool from a definition defined in the Dev Center, then this will be the name of the definition. If creating a pool from a custom definition (e.g. Team Customizations), first the catalog must be added to this project, and second must use the format \"\\~Catalog\\~{catalogName}\\~{imagedefinition YAML name}\" (e.g. \"\\~Catalog\\~eshopRepo\\~frontend-dev\")."
               }
             },
             "devBoxDefinition": {

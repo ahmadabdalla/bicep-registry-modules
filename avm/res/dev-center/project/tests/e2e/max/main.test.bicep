@@ -46,7 +46,6 @@ module nestedDependencies 'dependencies.bicep' = {
     managedIdentity1Name: 'dep-${namePrefix}-msi1-${serviceShort}'
     managedIdentity2Name: 'dep-${namePrefix}-msi2-${serviceShort}'
     roleDefinitionName: 'dep-${namePrefix}-customrole-${serviceShort}'
-    computeGalleryName: 'dep${namePrefix}gal${serviceShort}'
     // Adding base time to make the name unique as purge protection must be enabled (but may not be longer than 24 characters total)
     keyVaultName: 'dep-${namePrefix}-kv-${serviceShort}-${substring(uniqueString(baseTime), 0, 3)}'
   }
@@ -69,13 +68,13 @@ module testDeployment '../../../main.bicep' = [
       managedIdentities: {
         systemAssigned: true
         userAssignedResourceIds: [
-          nestedDependencies.outputs.managedIdentityResourceId
+          nestedDependencies.outputs.managedIdentity1ResourceId
         ]
       }
-      //lock: { restore once development work is done
-      //  kind: 'CanNotDelete'
-      //  name: 'myCustomLockName'
-      //}
+      lock: {
+        kind: 'CanNotDelete'
+        name: 'myCustomLockName'
+      }
       tags: {
         'hidden-title': 'This is visible in the resource name'
         Environment: 'Non-Prod'
@@ -125,7 +124,7 @@ module testDeployment '../../../main.bicep' = [
           managedIdentities: {
             systemAssigned: false
             userAssignedResourceIds: [
-              nestedDependencies.outputs.managedIdentityResourceId
+              nestedDependencies.outputs.managedIdentity1ResourceId
             ]
           }
           roleAssignments: [

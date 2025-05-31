@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "613177101320680112"
+      "templateHash": "10134378198494772567"
     },
     "name": "Dev Center Project Environment Type",
     "description": "This module deploys a Dev Center Project Environment Type."
@@ -250,8 +250,7 @@
       "Reader": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
       "Role Based Access Control Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f58310d9-a9f6-439a-9e8d-f62e7b41a168')]",
       "User Access Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]"
-    },
-    "userRoleAssignments": "[reduce(parameters('userRoleAssignmentsRoles'), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), createObject(format('{0}', lambdaVariables('next').objectId), createObject('roles', reduce(lambdaVariables('next').roleDefinitions, createObject(), lambda('roleCur', 'roleNext', union(lambdaVariables('roleCur'), createObject(format('{0}', lambdaVariables('roleNext')), createObject())))))))))]"
+    }
   },
   "resources": {
     "project": {
@@ -274,7 +273,7 @@
         "creatorRoleAssignment": {
           "roles": "[reduce(map(parameters('creatorRoleAssignmentRoles'), lambda('role', createObject(format('{0}', lambdaVariables('role')), createObject()))), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), lambdaVariables('next'))))]"
         },
-        "userRoleAssignments": "[if(not(empty(variables('userRoleAssignments'))), variables('userRoleAssignments'), null())]"
+        "userRoleAssignments": "[if(not(empty(parameters('userRoleAssignmentsRoles'))), reduce(coalesce(parameters('userRoleAssignmentsRoles'), createArray()), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), createObject(format('{0}', lambdaVariables('next').objectId), createObject('roles', reduce(lambdaVariables('next').roleDefinitions, createObject(), lambda('roleCur', 'roleNext', union(lambdaVariables('roleCur'), createObject(format('{0}', lambdaVariables('roleNext')), createObject()))))))))), null())]"
       }
     },
     "environmentType_roleAssignments": {

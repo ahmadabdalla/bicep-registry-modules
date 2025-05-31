@@ -16,9 +16,6 @@ param managedIdentity2Name string
 @description('Required. The name of the custom role definition to create.')
 param roleDefinitionName string
 
-@description('Required. The name of the Azure Compute Gallery.')
-param computeGalleryName string
-
 @description('Required. The name of the Key Vault to create.')
 param keyVaultName string
 
@@ -143,32 +140,6 @@ resource devCenterNetworkConnectionAssociation 'Microsoft.DevCenter/devcenters/a
   }
 }
 
-resource azureComputeGallery 'Microsoft.Compute/galleries@2024-03-03' = {
-  name: computeGalleryName
-  location: location
-  properties: {
-    description: 'Azure Compute Gallery for Dev Center'
-  }
-}
-
-resource galleryRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(azureComputeGallery.id, managedIdentity1.id, 'Contributor')
-  scope: azureComputeGallery
-  properties: {
-    roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor
-    principalId: managedIdentity1.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
-}
-
-resource devCenterGallery 'Microsoft.DevCenter/devcenters/galleries@2025-02-01' = {
-  name: azureComputeGallery.name
-  parent: devCenter
-  properties: {
-    galleryResourceId: azureComputeGallery.id
-  }
-}
-
 resource keyVault 'Microsoft.KeyVault/vaults@2024-11-01' = {
   name: keyVaultName
   location: location
@@ -203,9 +174,6 @@ resource keyPermissions 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   }
 }
 
-@description('The name of the created Dev Center.')
-output devCenterName string = devCenter.name
-
 @description('The resource ID of the created DevCenter.')
 output devCenterResourceId string = devCenter.id
 
@@ -216,7 +184,7 @@ output devCenterAttachedNetworkConnectionName string = devCenterNetworkConnectio
 output managedIdentity1PrincipalId string = managedIdentity1.properties.principalId
 
 @description('The resource ID of the first created Managed Identity.')
-output managedIdentityResourceId string = managedIdentity1.id
+output managedIdentity1ResourceId string = managedIdentity1.id
 
 @description('The principal ID of the second created Managed Identity.')
 output managedIdentity2PrincipalId string = managedIdentity2.properties.principalId
@@ -227,14 +195,11 @@ output managedIdentity2ResourceId string = managedIdentity2.id
 @description('The resource ID of the custom role definition.')
 output roleDefinitionResourceId string = roleDefinition.id
 
-@description('The name of the created custom role definition.')
+@description('The ID of the created custom role definition.')
 output roleDefinitionId string = roleDefinition.name
 
 @description('The name of the Dev Center Devbox Definition.')
 output devboxDefinitionName string = devboxDefinition.name
-
-@description('The name of the Azure Compute Gallery.')
-output azureComputeGalleryName string = azureComputeGallery.name
 
 @description('The secret URI of the created Key Vault secret.')
 output keyVaultSecretUri string = keyVault::secret.properties.secretUriWithVersion

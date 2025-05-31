@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "10680486566691219824"
+      "templateHash": "4469995674450843452"
     },
     "name": "Dev Center Project Catalog",
     "description": "This module deploys a Dev Center Project Catalog."
@@ -39,7 +39,7 @@
           "type": "string",
           "nullable": true,
           "metadata": {
-            "description": "Optional. A reference to the Key Vault secret containing a Personal Access Token (PAT) to authenticate to a Git repository."
+            "description": "Optional. A reference to the Key Vault secret containing a Personal Access Token (PAT) to authenticate to a Git repository. Not required for Azure DevOps with Managed Identity authentication or GitHub with App Center."
           }
         }
       },
