@@ -29,7 +29,7 @@ param status string = 'Enabled'
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-@sys.description('Required. An array specifying the role definitions (permissions) GUIDs that will be granted to the user that creates a given environment of this type. These can be both built-in or custom role definitions. At least one role must be specified.')
+@description('Required. An array specifying the role definitions (permissions) GUIDs that will be granted to the user that creates a given environment of this type. These can be both built-in or custom role definitions. At least one role must be specified.')
 param creatorRoleAssignmentRoles string[]
 
 @description('Optional. A collection of additional object IDs of users, groups, service principals or managed identities be granted permissions on each environment of this type. Each identity can have multiple role definitions (permissions) GUIDs assigned to it. These can be either built-in or custom role definitions.')

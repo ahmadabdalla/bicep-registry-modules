@@ -307,11 +307,11 @@ type poolType = {
   @sys.description('Optional. The display name of the pool.')
   displayName: string?
 
-  @sys.description('Optional. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly. Defauts to "Reference".')
+  @sys.description('Optional. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly. Defaults to "Reference".')
   devBoxDefinitionType: 'Reference' | 'Value'?
 
-  @sys.description('Conditional. Name of a Dev Box definition in parent Project of this Pool. Required if devBoxDefinitionType is "Reference".')
-  devBoxDefinitionName: string?
+  @sys.description('Required. Name of a Dev Box definition in parent Project of this Pool. If creating a pool from a definition defined in the Dev Center, then this will be the name of the definition. If creating a pool from a custom definition (e.g. Team Customizations), first the catalog must be added to this project, and second must use the format "\\~Catalog\\~{catalogName}\\~{imagedefinition YAML name}" (e.g. "\\~Catalog\\~eshopRepo\\~frontend-dev").')
+  devBoxDefinitionName: string
 
   @sys.description('Conditional. A definition of the machines that are created from this Pool. Required if devBoxDefinitionType is "Value".')
   devBoxDefinition: devBoxDefinitionTypeType?
@@ -340,7 +340,7 @@ type poolType = {
   @sys.description('Optional. Stop on "no connect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects.')
   stopOnNoConnect: stopOnNoConnectConfiguration?
 
-  @sys.description('Optional. Pool schedule settings for Dev Boxes created in this pool. Dev boxes in this pool will be stopped daily at the specified time.')
+  @sys.description('Optional. The schedule for the pool. Dev boxes in this pool will auto-stop every day as per the schedule configuration.')
   schedule: poolScheduleType?
 }[]
 
