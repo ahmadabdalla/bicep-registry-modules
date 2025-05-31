@@ -63,10 +63,10 @@ param networkConnectionName string?
 param singleSignOnStatus string?
 
 @description('Optional. Stop on "disconnect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period after the user disconnects.')
-param stopOnDisconnect stopOnDisconnectConfiguration?
+param stopOnDisconnect stopOnDisconnectType?
 
 @description('Optional. Stop on "no connect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects.')
-param stopOnNoConnect stopOnNoConnectConfiguration?
+param stopOnNoConnect stopOnNoConnectType?
 
 @description('Optional. The schedule for the pool. Dev boxes in this pool will auto-stop every day as per the schedule configuration.')
 param schedule poolScheduleType?
@@ -140,7 +140,7 @@ output location string = pool.location
 
 @description('The type for stopOnDisconnect configuration.')
 @export()
-type stopOnDisconnectConfiguration = {
+type stopOnDisconnectType = {
   @description('Required. The specified time in minutes to wait before stopping a Dev Box once disconnect is detected.')
   gracePeriodMinutes: int
 
@@ -150,7 +150,7 @@ type stopOnDisconnectConfiguration = {
 
 @description('The type for stopOnNoConnect configuration.')
 @export()
-type stopOnNoConnectConfiguration = {
+type stopOnNoConnectType = {
   @description('Required. The specified time in minutes to wait before stopping a Dev Box if no connection is made.')
   gracePeriodMinutes: int
 

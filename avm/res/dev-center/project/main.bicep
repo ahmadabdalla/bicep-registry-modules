@@ -47,7 +47,7 @@ param enableTelemetry bool = true
 param environmentTypes environmentTypeType[]?
 
 @sys.description('Optional. The type of pool to create in the project. A project pool is a container for dev boxes that share the same configuration, like a dev box definition and a network connection. Essentially, a project pool defines the specifications for the dev boxes that developers can create from a specific project in the Dev Box service.')
-param pools poolType?
+param pools poolType[]?
 
 @sys.description('Optional. The catalogs to create in the project. Catalogs are templates from a git repository that can be used to create environments.')
 param catalogs catalogType[]?
@@ -298,7 +298,7 @@ type environmentTypeType = {
   userRoleAssignmentsRoles: additionalRoleAssignmentsType?
 }
 
-import { stopOnDisconnectConfiguration, stopOnNoConnectConfiguration, devBoxDefinitionTypeType, poolScheduleType } from 'pool/main.bicep'
+import { stopOnDisconnectType, stopOnNoConnectType, devBoxDefinitionTypeType, poolScheduleType } from 'pool/main.bicep'
 @sys.description('The type for a Dev Center Project Pool.')
 type poolType = {
   @sys.description('Required. The name of the project pool. This name must be unique within a project and is visible to developers when creating dev boxes.')
@@ -335,14 +335,14 @@ type poolType = {
   singleSignOnStatus: 'Enabled' | 'Disabled'?
 
   @sys.description('Optional. Stop on "disconnect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period after the user disconnects.')
-  stopOnDisconnect: stopOnDisconnectConfiguration?
+  stopOnDisconnect: stopOnDisconnectType?
 
   @sys.description('Optional. Stop on "no connect" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects.')
-  stopOnNoConnect: stopOnNoConnectConfiguration?
+  stopOnNoConnect: stopOnNoConnectType?
 
   @sys.description('Optional. The schedule for the pool. Dev boxes in this pool will auto-stop every day as per the schedule configuration.')
   schedule: poolScheduleType?
-}[]
+}
 
 import { sourceType } from 'catalog/main.bicep'
 @export()

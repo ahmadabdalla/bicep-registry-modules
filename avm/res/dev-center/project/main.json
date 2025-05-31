@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "11127603741884130241"
+      "templateHash": "16875599756052341967"
     },
     "name": "Dev Center Project",
     "description": "This module deploys a Dev Center Project."
@@ -112,119 +112,116 @@
       }
     },
     "poolType": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "metadata": {
-              "description": "Required. The name of the project pool. This name must be unique within a project and is visible to developers when creating dev boxes."
-            }
-          },
-          "displayName": {
-            "type": "string",
-            "nullable": true,
-            "metadata": {
-              "description": "Optional. The display name of the pool."
-            }
-          },
-          "devBoxDefinitionType": {
-            "type": "string",
-            "allowedValues": [
-              "Reference",
-              "Value"
-            ],
-            "nullable": true,
-            "metadata": {
-              "description": "Optional. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly. Defaults to \"Reference\"."
-            }
-          },
-          "devBoxDefinitionName": {
-            "type": "string",
-            "metadata": {
-              "description": "Required. Name of a Dev Box definition in parent Project of this Pool. If creating a pool from a definition defined in the Dev Center, then this will be the name of the definition. If creating a pool from a custom definition (e.g. Team Customizations), first the catalog must be added to this project, and second must use the format \"\\~Catalog\\~{catalogName}\\~{imagedefinition YAML name}\" (e.g. \"\\~Catalog\\~eshopRepo\\~frontend-dev\")."
-            }
-          },
-          "devBoxDefinition": {
-            "$ref": "#/definitions/devBoxDefinitionTypeType",
-            "nullable": true,
-            "metadata": {
-              "description": "Conditional. A definition of the machines that are created from this Pool. Required if devBoxDefinitionType is \"Value\"."
-            }
-          },
-          "tags": {
-            "type": "object",
-            "nullable": true,
-            "metadata": {
-              "description": "Optional. Resource tags to apply to the pool."
-            }
-          },
-          "localAdministrator": {
-            "type": "string",
-            "allowedValues": [
-              "Disabled",
-              "Enabled"
-            ],
-            "metadata": {
-              "description": "Required. Each dev box creator will be granted the selected permissions on the dev boxes they create. Indicates whether owners of Dev Boxes in this pool are added as a \"local administrator\" or \"standard user\" on the Dev Box."
-            }
-          },
-          "virtualNetworkType": {
-            "type": "string",
-            "allowedValues": [
-              "Managed",
-              "Unmanaged"
-            ],
-            "metadata": {
-              "description": "Required. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network. For the easiest configuration experience, the Microsoft hosted network can be used for dev box deployment. For organizations that require customized networking, use a network connection resource."
-            }
-          },
-          "managedVirtualNetworkRegion": {
-            "type": "string",
-            "nullable": true,
-            "metadata": {
-              "description": "Conditional. The region of the managed virtual network. Required if virtualNetworkType is \"Managed\"."
-            }
-          },
-          "networkConnectionName": {
-            "type": "string",
-            "nullable": true,
-            "metadata": {
-              "description": "Conditional. Name of a Network Connection in parent Project of this Pool. Required if virtualNetworkType is \"Unmanaged\". The region hosting a pool is determined by the region of the network connection. For best performance, create a dev box pool for every region where your developers are located. The network connection cannot be configured with \"None\" domain join type and must be first attached to the Dev Center before used by the pool. Will be set to \"managedNetwork\" if virtualNetworkType is \"Managed\"."
-            }
-          },
-          "singleSignOnStatus": {
-            "type": "string",
-            "allowedValues": [
-              "Disabled",
-              "Enabled"
-            ],
-            "nullable": true,
-            "metadata": {
-              "description": "Optional. Indicates whether Dev Boxes in this pool are created with single sign on enabled. The also requires that single sign on be enabled on the tenant. Changing this setting will not affect existing dev boxes."
-            }
-          },
-          "stopOnDisconnect": {
-            "$ref": "#/definitions/stopOnDisconnectConfiguration",
-            "nullable": true,
-            "metadata": {
-              "description": "Optional. Stop on \"disconnect\" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period after the user disconnects."
-            }
-          },
-          "stopOnNoConnect": {
-            "$ref": "#/definitions/stopOnNoConnectConfiguration",
-            "nullable": true,
-            "metadata": {
-              "description": "Optional. Stop on \"no connect\" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects."
-            }
-          },
-          "schedule": {
-            "$ref": "#/definitions/poolScheduleType",
-            "nullable": true,
-            "metadata": {
-              "description": "Optional. The schedule for the pool. Dev boxes in this pool will auto-stop every day as per the schedule configuration."
-            }
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The name of the project pool. This name must be unique within a project and is visible to developers when creating dev boxes."
+          }
+        },
+        "displayName": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The display name of the pool."
+          }
+        },
+        "devBoxDefinitionType": {
+          "type": "string",
+          "allowedValues": [
+            "Reference",
+            "Value"
+          ],
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Indicates if the pool is created from an existing Dev Box Definition or if one is provided directly. Defaults to \"Reference\"."
+          }
+        },
+        "devBoxDefinitionName": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. Name of a Dev Box definition in parent Project of this Pool. If creating a pool from a definition defined in the Dev Center, then this will be the name of the definition. If creating a pool from a custom definition (e.g. Team Customizations), first the catalog must be added to this project, and second must use the format \"\\~Catalog\\~{catalogName}\\~{imagedefinition YAML name}\" (e.g. \"\\~Catalog\\~eshopRepo\\~frontend-dev\")."
+          }
+        },
+        "devBoxDefinition": {
+          "$ref": "#/definitions/devBoxDefinitionTypeType",
+          "nullable": true,
+          "metadata": {
+            "description": "Conditional. A definition of the machines that are created from this Pool. Required if devBoxDefinitionType is \"Value\"."
+          }
+        },
+        "tags": {
+          "type": "object",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Resource tags to apply to the pool."
+          }
+        },
+        "localAdministrator": {
+          "type": "string",
+          "allowedValues": [
+            "Disabled",
+            "Enabled"
+          ],
+          "metadata": {
+            "description": "Required. Each dev box creator will be granted the selected permissions on the dev boxes they create. Indicates whether owners of Dev Boxes in this pool are added as a \"local administrator\" or \"standard user\" on the Dev Box."
+          }
+        },
+        "virtualNetworkType": {
+          "type": "string",
+          "allowedValues": [
+            "Managed",
+            "Unmanaged"
+          ],
+          "metadata": {
+            "description": "Required. Indicates whether the pool uses a Virtual Network managed by Microsoft or a customer provided network. For the easiest configuration experience, the Microsoft hosted network can be used for dev box deployment. For organizations that require customized networking, use a network connection resource."
+          }
+        },
+        "managedVirtualNetworkRegion": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Conditional. The region of the managed virtual network. Required if virtualNetworkType is \"Managed\"."
+          }
+        },
+        "networkConnectionName": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Conditional. Name of a Network Connection in parent Project of this Pool. Required if virtualNetworkType is \"Unmanaged\". The region hosting a pool is determined by the region of the network connection. For best performance, create a dev box pool for every region where your developers are located. The network connection cannot be configured with \"None\" domain join type and must be first attached to the Dev Center before used by the pool. Will be set to \"managedNetwork\" if virtualNetworkType is \"Managed\"."
+          }
+        },
+        "singleSignOnStatus": {
+          "type": "string",
+          "allowedValues": [
+            "Disabled",
+            "Enabled"
+          ],
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Indicates whether Dev Boxes in this pool are created with single sign on enabled. The also requires that single sign on be enabled on the tenant. Changing this setting will not affect existing dev boxes."
+          }
+        },
+        "stopOnDisconnect": {
+          "$ref": "#/definitions/stopOnDisconnectType",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Stop on \"disconnect\" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period after the user disconnects."
+          }
+        },
+        "stopOnNoConnect": {
+          "$ref": "#/definitions/stopOnNoConnectType",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Stop on \"no connect\" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects."
+          }
+        },
+        "schedule": {
+          "$ref": "#/definitions/poolScheduleType",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The schedule for the pool. Dev boxes in this pool will auto-stop every day as per the schedule configuration."
           }
         }
       },
@@ -561,7 +558,7 @@
         }
       }
     },
-    "stopOnDisconnectConfiguration": {
+    "stopOnDisconnectType": {
       "type": "object",
       "properties": {
         "gracePeriodMinutes": {
@@ -588,7 +585,7 @@
         }
       }
     },
-    "stopOnNoConnectConfiguration": {
+    "stopOnNoConnectType": {
       "type": "object",
       "properties": {
         "gracePeriodMinutes": {
@@ -716,7 +713,10 @@
       }
     },
     "pools": {
-      "$ref": "#/definitions/poolType",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/poolType"
+      },
       "nullable": true,
       "metadata": {
         "description": "Optional. The type of pool to create in the project. A project pool is a container for dev boxes that share the same configuration, like a dev box definition and a network connection. Essentially, a project pool defines the specifications for the dev boxes that developers can create from a specific project in the Dev Box service."
@@ -1486,13 +1486,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "11943427937088779303"
+              "templateHash": "11371050106411674889"
             },
             "name": "Dev Center Project Pool",
             "description": "This module deploys a Dev Center Project Pool."
           },
           "definitions": {
-            "stopOnDisconnectConfiguration": {
+            "stopOnDisconnectType": {
               "type": "object",
               "properties": {
                 "gracePeriodMinutes": {
@@ -1517,7 +1517,7 @@
                 "description": "The type for stopOnDisconnect configuration."
               }
             },
-            "stopOnNoConnectConfiguration": {
+            "stopOnNoConnectType": {
               "type": "object",
               "properties": {
                 "gracePeriodMinutes": {
@@ -1730,14 +1730,14 @@
               }
             },
             "stopOnDisconnect": {
-              "$ref": "#/definitions/stopOnDisconnectConfiguration",
+              "$ref": "#/definitions/stopOnDisconnectType",
               "nullable": true,
               "metadata": {
                 "description": "Optional. Stop on \"disconnect\" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period after the user disconnects."
               }
             },
             "stopOnNoConnect": {
-              "$ref": "#/definitions/stopOnNoConnectConfiguration",
+              "$ref": "#/definitions/stopOnNoConnectType",
               "nullable": true,
               "metadata": {
                 "description": "Optional. Stop on \"no connect\" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects."

@@ -6,13 +6,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "11943427937088779303"
+      "templateHash": "11371050106411674889"
     },
     "name": "Dev Center Project Pool",
     "description": "This module deploys a Dev Center Project Pool."
   },
   "definitions": {
-    "stopOnDisconnectConfiguration": {
+    "stopOnDisconnectType": {
       "type": "object",
       "properties": {
         "gracePeriodMinutes": {
@@ -37,7 +37,7 @@
         "description": "The type for stopOnDisconnect configuration."
       }
     },
-    "stopOnNoConnectConfiguration": {
+    "stopOnNoConnectType": {
       "type": "object",
       "properties": {
         "gracePeriodMinutes": {
@@ -250,14 +250,14 @@
       }
     },
     "stopOnDisconnect": {
-      "$ref": "#/definitions/stopOnDisconnectConfiguration",
+      "$ref": "#/definitions/stopOnDisconnectType",
       "nullable": true,
       "metadata": {
         "description": "Optional. Stop on \"disconnect\" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period after the user disconnects."
       }
     },
     "stopOnNoConnect": {
-      "$ref": "#/definitions/stopOnNoConnectConfiguration",
+      "$ref": "#/definitions/stopOnNoConnectType",
       "nullable": true,
       "metadata": {
         "description": "Optional. Stop on \"no connect\" configuration settings for Dev Boxes created in this pool. Dev boxes in this pool will hibernate after the grace period if the user never connects."
