@@ -19,6 +19,9 @@ param roleDefinitionName string
 @description('Required. The name of the Azure Compute Gallery.')
 param computeGalleryName string
 
+@description('Required. The name of the Key Vault to create.')
+param keyVaultName string
+
 @description('Optional. The location to deploy resources to.')
 param location string = resourceGroup().location
 
@@ -119,38 +122,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-05-01' = {
           addressPrefix: cidrSubnet(addressPrefix, 24, 0)
         }
       }
-      //{
-      //  name: 'image'
-      //  properties: {
-      //    addressPrefix: cidrSubnet(addressPrefix, 24, 1)
-      //    privateLinkServiceNetworkPolicies: 'Disabled'
-      //    serviceEndpoints: [
-      //      {
-      //        service: 'Microsoft.Storage'
-      //      }
-      //    ]
-      //  }
-      //}
-      //{
-      //  name: 'deploymentScript'
-      //  properties: {
-      //    addressPrefix: cidrSubnet(addressPrefix, 24, 2)
-      //    privateLinkServiceNetworkPolicies: 'Disabled'
-      //    serviceEndpoints: [
-      //      {
-      //        service: 'Microsoft.Storage'
-      //      }
-      //    ]
-      //    delegations: [
-      //      {
-      //        name: 'aciDelegation'
-      //        properties: {
-      //          serviceName: 'Microsoft.ContainerInstance/containerGroups'
-      //        }
-      //      }
-      //    ]
-      //  }
-      //}
     ]
   }
 }
@@ -198,6 +169,45 @@ resource devCenterGallery 'Microsoft.DevCenter/devcenters/galleries@2025-02-01' 
   }
 }
 
+resource keyVault 'Microsoft.KeyVault/vaults@2024-11-01' = {
+  name: keyVaultName
+  location: location
+  properties: {
+    sku: {
+      family: 'A'
+      name: 'standard'
+    }
+    tenantId: tenant().tenantId
+    enablePurgeProtection: true // Required for encryption to work
+    softDeleteRetentionInDays: 7
+    enabledForTemplateDeployment: true
+    enabledForDiskEncryption: true
+    enabledForDeployment: true
+    enableRbacAuthorization: true
+    accessPolicies: []
+  }
+
+  resource secret 'secrets' = {
+    name: 'testSecret'
+    properties: {
+      value: ''
+    }
+  }
+}
+
+resource keyPermissions 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid('msi-${keyVault.id}-${location}-${keyVault::secret.id}-KeyVault-Secrets-User-RoleAssignment')
+  scope: keyVault
+  properties: {
+    principalId: managedIdentity1.properties.principalId
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      '4633458b-17de-408a-b874-0445c86b69e6'
+    ) // Key Vault Secrets User
+    principalType: 'ServicePrincipal'
+  }
+}
+
 @description('The name of the created Dev Center.')
 output devCenterName string = devCenter.name
 
@@ -231,11 +241,5 @@ output devboxDefinitionName string = devboxDefinition.name
 @description('The name of the Azure Compute Gallery.')
 output azureComputeGalleryName string = azureComputeGallery.name
 
-@description('The name of the created Virtual Network.')
-output virtualNetworkName string = virtualNetwork.name
-
-@description('The address space of the created Virtual Network.')
-output virtualNetworkAddressSpace string = virtualNetwork.properties.addressSpace.addressPrefixes[0]
-
-@description('The subnets of the created Virtual Network.')
-output virtualNetworkSubnets array = virtualNetwork.properties.subnets
+@description('The secret URI of the created Key Vault secret.')
+output keyVaultSecretUri string = keyVault::secret.properties.secretUriWithVersion

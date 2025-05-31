@@ -49,6 +49,9 @@ param environmentTypes environmentTypeType[]?
 @sys.description('Optional. The type of pool to create in the project. A project pool is a container for dev boxes that share the same configuration, like a dev box definition and a network connection. Essentially, a project pool defines the specifications for the dev boxes that developers can create from a specific project in the Dev Box service.')
 param pools poolType?
 
+@sys.description('Optional. The catalogs to create in the project. Catalogs are templates from a git repository that can be used to create environments.')
+param catalogs catalogType[]?
+
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
   {},
@@ -164,6 +167,21 @@ module project_environmentType 'environment-type/main.bicep' = [
   }
 ]
 
+module project_catalog 'catalog/main.bicep' = [
+  for (catalog, index) in (catalogs ?? []): {
+    name: '${uniqueString(deployment().name, location)}-Project-Catalog-${index}'
+    params: {
+      name: catalog.name
+      projectName: project.name
+      gitHub: catalog.?gitHub
+      adoGit: catalog.?adoGit
+      syncType: catalog.?syncType
+      tags: catalog.?tags
+      location: location
+    }
+  }
+]
+
 module project_pool 'pool/main.bicep' = [
   for (pool, index) in (pools ?? []): {
     name: '${uniqueString(deployment().name, location)}-Project-Pool-${index}'
@@ -185,6 +203,9 @@ module project_pool 'pool/main.bicep' = [
       stopOnNoConnect: pool.?stopOnNoConnect
       schedule: pool.?schedule
     }
+    dependsOn: [
+      project_catalog
+    ]
   }
 ]
 
@@ -322,3 +343,23 @@ type poolType = {
   @sys.description('Optional. Pool schedule settings for Dev Boxes created in this pool. Dev boxes in this pool will be stopped daily at the specified time.')
   schedule: poolScheduleType?
 }[]
+
+import { sourceType } from 'catalog/main.bicep'
+@export()
+@sys.description('The type for a Dev Center Project Catalog.')
+type catalogType = {
+  @sys.description('Required. The name of the catalog. Must be between 3 and 63 characters and can contain alphanumeric characters, hyphens, underscores, and periods.')
+  name: string
+
+  @sys.description('Optional. GitHub repository configuration for the catalog.')
+  gitHub: sourceType?
+
+  @sys.description('Optional. Azure DevOps Git repository configuration for the catalog.')
+  adoGit: sourceType?
+
+  @sys.description('Optional. Indicates the type of sync that is configured for the catalog. Defaults to "Scheduled".')
+  syncType: ('Manual' | 'Scheduled')?
+
+  @sys.description('Optional. Resource tags to apply to the catalog.')
+  tags: object?
+}

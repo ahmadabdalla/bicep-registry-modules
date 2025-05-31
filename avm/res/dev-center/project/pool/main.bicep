@@ -23,8 +23,8 @@ param displayName string?
 ])
 param devBoxDefinitionType string = 'Reference'
 
-@description('Conditional. Name of a Dev Box definition in parent Project of this Pool. Required if devBoxDefinitionType is "Reference".')
-param devBoxDefinitionName string?
+@description('Required. Name of a Dev Box definition in parent Project of this Pool. If creating a pool from a definition defined in the Dev Center, then this will be the name of the definition. If creating a pool from a custom definition (e.g. Team Customizations), first the catalog must be added to this project, and second must use the format "\\~Catalog\\~{catalogName}\\~{imagedefinition YAML name}" (e.g. "\\~Catalog\\~eshopRepo\\~frontend-dev").')
+param devBoxDefinitionName string
 
 @description('Conditional. A definition of the machines that are created from this Pool. Required if devBoxDefinitionType is "Value".')
 param devBoxDefinition devBoxDefinitionTypeType?
@@ -161,7 +161,7 @@ type stopOnNoConnectConfiguration = {
 @description('The type for dev box definition.')
 @export()
 type devBoxDefinitionTypeType = {
-  @description('Required. The resource ID of the image reference for the dev box definition.')
+  @description('Required. The resource ID of the image reference for the dev box definition. This would be the resource ID of the project image where the image has the same name as the dev box definition name. If the dev box definition is created from a catalog, then this would be the resource ID of the image in the project that was created from the catalog. The format is "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevCenter/projects/{projectName}/images/~Catalog~{catalogName}~{imagedefinition YAML name}".')
   imageReferenceResourceId: string
 
   @description('Required. The SKU configuration for the dev box definition.')
@@ -172,7 +172,7 @@ type devBoxDefinitionTypeType = {
     @description('Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here.')
     family: string?
 
-    @description('Required. The name of the SKU. E.g. P3. It is typically a letter+number code.')
+    @description('Required. The name of the SKU. E.g. P3. It is typically a letter+number code. E.g. "general_i_8c32gb256ssd_v2" or "general_i_8c32gb512ssd_v2". See "https://learn.microsoft.com/en-us/python/api/azure-developer-devcenter/azure.developer.devcenter.models.hardwareprofile" for more information about acceptable SKU names.')
     name: string
 
     @description('Optional. The SKU size. When the name field is the combination of tier and some other value, this would be the standalone code.')
