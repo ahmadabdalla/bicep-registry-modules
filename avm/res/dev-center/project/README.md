@@ -1481,7 +1481,7 @@ A definition of the machines that are created from this Pool. Required if devBox
 | Parameter | Type | Description |
 | :-- | :-- | :-- |
 | [`imageReferenceResourceId`](#parameter-poolsdevboxdefinitionimagereferenceresourceid) | string | The resource ID of the image reference for the dev box definition. This would be the resource ID of the project image where the image has the same name as the dev box definition name. If the dev box definition is created from a catalog, then this would be the resource ID of the image in the project that was created from the catalog. The format is "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevCenter/projects/{projectName}/images/~Catalog~{catalogName}~{imagedefinition YAML name}". |
-| [`sku`](#parameter-poolsdevboxdefinitionsku) | object | The SKU configuration for the dev box definition. |
+| [`sku`](#parameter-poolsdevboxdefinitionsku) | object | The SKU configuration for the dev box definition. See "https://learn.microsoft.com/en-us/rest/api/devcenter/administrator/skus/list-by-subscription?view=rest-devcenter-administrator-2024-02-01" for more information about SKUs. |
 
 ### Parameter: `pools.devBoxDefinition.imageReferenceResourceId`
 
@@ -1492,7 +1492,7 @@ The resource ID of the image reference for the dev box definition. This would be
 
 ### Parameter: `pools.devBoxDefinition.sku`
 
-The SKU configuration for the dev box definition.
+The SKU configuration for the dev box definition. See "https://learn.microsoft.com/en-us/rest/api/devcenter/administrator/skus/list-by-subscription?view=rest-devcenter-administrator-2024-02-01" for more information about SKUs.
 
 - Required: Yes
 - Type: object
@@ -1508,7 +1508,7 @@ The SKU configuration for the dev box definition.
 | Parameter | Type | Description |
 | :-- | :-- | :-- |
 | [`capacity`](#parameter-poolsdevboxdefinitionskucapacity) | int | If the SKU supports scale out/in then the capacity integer should be included. If scale out/in is not possible for the resource this may be omitted. |
-| [`family`](#parameter-poolsdevboxdefinitionskufamily) | string | If the service has different generations of hardware, for the same SKU, then that can be captured here. |
+| [`family`](#parameter-poolsdevboxdefinitionskufamily) | string | If the service has different generations of hardware, for the same SKU, then that can be captured here. For example, "general_i_v2" or  |
 | [`size`](#parameter-poolsdevboxdefinitionskusize) | string | The SKU size. When the name field is the combination of tier and some other value, this would be the standalone code. |
 
 ### Parameter: `pools.devBoxDefinition.sku.name`
@@ -1527,7 +1527,7 @@ If the SKU supports scale out/in then the capacity integer should be included. I
 
 ### Parameter: `pools.devBoxDefinition.sku.family`
 
-If the service has different generations of hardware, for the same SKU, then that can be captured here.
+If the service has different generations of hardware, for the same SKU, then that can be captured here. For example, "general_i_v2" or 
 
 - Required: No
 - Type: string

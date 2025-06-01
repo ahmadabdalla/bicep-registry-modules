@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "13735459206395025486"
+      "templateHash": "7549684289568509889"
     },
     "name": "Dev Center Project",
     "description": "This module deploys a Dev Center Project."
@@ -302,7 +302,7 @@
               "type": "string",
               "nullable": true,
               "metadata": {
-                "description": "Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here."
+                "description": "Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here. For example, \"general_i_v2\" or "
               }
             },
             "name": {
@@ -320,7 +320,7 @@
             }
           },
           "metadata": {
-            "description": "Required. The SKU configuration for the dev box definition."
+            "description": "Required. The SKU configuration for the dev box definition. See \"https://learn.microsoft.com/en-us/rest/api/devcenter/administrator/skus/list-by-subscription?view=rest-devcenter-administrator-2024-02-01\" for more information about SKUs."
           }
         }
       },
@@ -1486,7 +1486,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "11371050106411674889"
+              "templateHash": "276996415619613909"
             },
             "name": "Dev Center Project Pool",
             "description": "This module deploys a Dev Center Project Pool."
@@ -1565,7 +1565,7 @@
                       "type": "string",
                       "nullable": true,
                       "metadata": {
-                        "description": "Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here."
+                        "description": "Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here. For example, \"general_i_v2\" or "
                       }
                     },
                     "name": {
@@ -1583,7 +1583,7 @@
                     }
                   },
                   "metadata": {
-                    "description": "Required. The SKU configuration for the dev box definition."
+                    "description": "Required. The SKU configuration for the dev box definition. See \"https://learn.microsoft.com/en-us/rest/api/devcenter/administrator/skus/list-by-subscription?view=rest-devcenter-administrator-2024-02-01\" for more information about SKUs."
                   }
                 }
               },

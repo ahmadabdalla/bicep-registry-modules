@@ -164,12 +164,12 @@ type devBoxDefinitionTypeType = {
   @description('Required. The resource ID of the image reference for the dev box definition. This would be the resource ID of the project image where the image has the same name as the dev box definition name. If the dev box definition is created from a catalog, then this would be the resource ID of the image in the project that was created from the catalog. The format is "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevCenter/projects/{projectName}/images/~Catalog~{catalogName}~{imagedefinition YAML name}".')
   imageReferenceResourceId: string
 
-  @description('Required. The SKU configuration for the dev box definition.')
+  @description('Required. The SKU configuration for the dev box definition. See "https://learn.microsoft.com/en-us/rest/api/devcenter/administrator/skus/list-by-subscription?view=rest-devcenter-administrator-2024-02-01" for more information about SKUs.')
   sku: {
     @description('Optional. If the SKU supports scale out/in then the capacity integer should be included. If scale out/in is not possible for the resource this may be omitted.')
     capacity: int?
 
-    @description('Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here.')
+    @description('Optional. If the service has different generations of hardware, for the same SKU, then that can be captured here. For example, "general_i_v2" or ')
     family: string?
 
     @description('Required. The name of the SKU. E.g. P3. It is typically a letter+number code. E.g. "general_i_8c32gb256ssd_v2" or "general_i_8c32gb512ssd_v2". See "https://learn.microsoft.com/en-us/python/api/azure-developer-devcenter/azure.developer.devcenter.models.hardwareprofile" for more information about acceptable SKU names.')
