@@ -16,6 +16,9 @@ param serviceShort string = 'dcdcwaf'
 @description('Optional. A token to inject into the name of each resource. This value can be automatically injected by the CI.')
 param namePrefix string = '#_namePrefix_#'
 
+@description('Generated. Used as a basis for unique resource names.')
+param baseTime string = 'ahmad'
+
 // Hardcoded because service not available in all regions
 #disable-next-line no-hardcoded-location
 var enforcedLocation = 'westeurope'
@@ -32,18 +35,6 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   location: enforcedLocation
 }
 
-module diagnosticDependencies '../../../../../../../utilities/e2e-template-assets/templates/diagnostic.dependencies.bicep' = {
-  scope: resourceGroup
-  name: '${uniqueString(deployment().name, enforcedLocation)}-diagnosticDependencies'
-  params: {
-    storageAccountName: 'dep${namePrefix}diasa${serviceShort}03'
-    logAnalyticsWorkspaceName: 'dep-${namePrefix}-law-${serviceShort}'
-    eventHubNamespaceEventHubName: 'dep-${namePrefix}-evh-${serviceShort}01'
-    eventHubNamespaceName: 'dep-${namePrefix}-evhns-${serviceShort}01'
-    location: enforcedLocation
-  }
-}
-
 module nestedDependencies 'dependencies.bicep' = {
   scope: resourceGroup
   name: '${uniqueString(deployment().name, enforcedLocation)}-nestedDependencies1'
@@ -52,6 +43,8 @@ module nestedDependencies 'dependencies.bicep' = {
     devCenterNetworkConnectionName: 'dep-${namePrefix}-dcnc-${serviceShort}'
     virtualNetworkName: 'dep-${namePrefix}-vnet-${serviceShort}'
     location: enforcedLocation
+    // Adding base time to make the name unique as purge protection must be enabled (but may not be longer than 24 characters total)
+    keyVaultName: 'dep-${namePrefix}-kv-${serviceShort}-${substring(uniqueString(baseTime), 0, 3)}'
   }
 }
 
@@ -75,61 +68,66 @@ module testDeployment '../../../main.bicep' = [
           nestedDependencies.outputs.managedIdentityResourceId
         ]
       }
-      devboxDefinitions: [
-        {
-          name: 'test-devbox-definition-builtin-gallery-image'
-          imageResourceId: '${devcenterExpectedResourceID}/galleries/Default/images/microsoftvisualstudio_visualstudioplustools_vs-2022-ent-general-win11-m365-gen2'
-          sku: {
-            name: 'general_i_8c32gb512ssd_v2'
-          }
-          hibernateSupport: 'Enabled'
-        }
-      ]
-      catalogs: [
-        {
-          name: 'quickstart-catalog'
-          gitHub: {
-            uri: 'https://github.com/microsoft/devcenter-catalog.git'
-            branch: 'main'
-            path: 'Environment-Definitions'
-          }
-          syncType: 'Scheduled'
-        }
-      ]
-      devBoxProvisioningSettings: {
-        installAzureMonitorAgentEnableStatus: 'Enabled'
+      //devboxDefinitions: [
+      //  {
+      //    name: 'test-devbox-definition-builtin-gallery-image'
+      //    imageResourceId: '${devcenterExpectedResourceID}/galleries/Default/images/microsoftvisualstudio_visualstudioplustools_vs-2022-ent-general-win11-m365-gen2'
+      //    sku: {
+      //      name: 'general_i_8c32gb512ssd_v2'
+      //    }
+      //    hibernateSupport: 'Enabled'
+      //  }
+      //]
+      //catalogs: [
+      //  {
+      //    name: 'quickstart-catalog'
+      //    gitHub: {
+      //      uri: 'https://github.com/microsoft/devcenter-catalog.git'
+      //      branch: 'main'
+      //      path: 'Environment-Definitions'
+      //    }
+      //    syncType: 'Scheduled'
+      //  }
+      //]
+      //devBoxProvisioningSettings: {
+      //  installAzureMonitorAgentEnableStatus: 'Enabled'
+      //}
+      //networkSettings: {
+      //  microsoftHostedNetworkEnableStatus: 'Disabled'
+      //}
+      //projectCatalogSettings: {
+      //  catalogItemSyncEnableStatus: 'Enabled'
+      //}
+      //projectPolicies: [
+      //  {
+      //    name: 'Default'
+      //    resourcePolicies: [
+      //      {
+      //        action: 'Allow'
+      //        resourceType: 'Images'
+      //      }
+      //      {
+      //        action: 'Allow'
+      //        resourceType: 'Skus'
+      //      }
+      //      {
+      //        action: 'Allow'
+      //        resourceType: 'AttachedNetworks'
+      //      }
+      //    ]
+      //  }
+      //]
+      //attachedNetworks: [
+      //  {
+      //    name: 'test-attached-network'
+      //    networkConnectionResourceId: nestedDependencies.outputs.networkConnectionResourceId
+      //  }
+      //]
+      customerManagedKey: {
+        keyName: nestedDependencies.outputs.keyVaultKeyName
+        keyVaultResourceId: nestedDependencies.outputs.keyVaultResourceId
+        userAssignedIdentityResourceId: nestedDependencies.outputs.managedIdentityResourceId
       }
-      networkSettings: {
-        microsoftHostedNetworkEnableStatus: 'Disabled'
-      }
-      projectCatalogSettings: {
-        catalogItemSyncEnableStatus: 'Enabled'
-      }
-      projectPolicies: [
-        {
-          name: 'Default'
-          resourcePolicies: [
-            {
-              action: 'Allow'
-              resourceType: 'Images'
-            }
-            {
-              action: 'Allow'
-              resourceType: 'Skus'
-            }
-            {
-              action: 'Allow'
-              resourceType: 'AttachedNetworks'
-            }
-          ]
-        }
-      ]
-      attachedNetworks: [
-        {
-          name: 'test-attached-network'
-          networkConnectionResourceId: nestedDependencies.outputs.networkConnectionResourceId
-        }
-      ]
     }
   }
 ]

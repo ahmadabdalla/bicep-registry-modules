@@ -4,9 +4,6 @@ param location string = resourceGroup().location
 @description('Required. The name of the KeyVault to create.')
 param keyVaultName string
 
-@description('Required. The name of the Storage Account to create.')
-param storageAccountName string
-
 @description('Required. The name of the Managed Identity to create.')
 param managedIdentityName string
 
@@ -55,15 +52,6 @@ resource keyPermissions 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   }
 }
 
-resource strorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
-  name: storageAccountName
-  location: location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
-  }
-}
-
 @description('The name of the created Key Vault encryption key.')
 output keyVaultKeyName string = keyVault::key.name
 
@@ -75,9 +63,3 @@ output managedIdentityPrincipalId string = managedIdentity.properties.principalI
 
 @description('The resource ID of the created Managed Identity.')
 output managedIdentityResourceId string = managedIdentity.id
-
-@description('The resource ID of the created Storage Account.')
-output storageAccountResourceId string = strorageAccount.id
-
-@description('The name of the storage account.')
-output storageAccountName string = strorageAccount.name

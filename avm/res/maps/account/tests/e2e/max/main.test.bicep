@@ -44,7 +44,6 @@ module nestedDependencies 'dependencies.bicep' = {
     keyVaultName: 'dep-${namePrefix}-kv-${serviceShort}-${substring(uniqueString(baseTime), 0, 3)}'
     managedIdentityName: 'dep-${namePrefix}-msi-${serviceShort}'
     location: resourceLocation
-    storageAccountName: 'dep${namePrefix}st${serviceShort}${substring(uniqueString(baseTime), 0, 3)}'
   }
 }
 
@@ -60,62 +59,12 @@ module testDeployment '../../../main.bicep' = [
     params: {
       name: '${namePrefix}${serviceShort}001'
       location: resourceLocation
-      corsRules: [
-        {
-          allowedOrigins: [
-            'https://www.bing.com'
-            'https://www.microsoft.com'
-          ]
-        }
-        {
-          allowedOrigins: [
-            'https://www.microsoft.com'
-          ]
-        }
-      ]
-      disableLocalAuth: true
-      sku: 'G2'
-      tags: {
-        costCenter: '1234'
-      }
-      kind: 'Gen2'
-      locations: [
-        'eastus'
-        'westeurope'
-      ]
       managedIdentities: {
         systemAssigned: true
         userAssignedResourceIds: [
           nestedDependencies.outputs.managedIdentityResourceId
         ]
       }
-      roleAssignments: [
-        {
-          principalId: nestedDependencies.outputs.managedIdentityPrincipalId
-          roleDefinitionIdOrName: 'Azure Maps Data Reader'
-          principalType: 'ServicePrincipal'
-        }
-        {
-          name: guid('Custom seed ${namePrefix}${serviceShort}')
-          roleDefinitionIdOrName: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-          principalId: nestedDependencies.outputs.managedIdentityPrincipalId
-          principalType: 'ServicePrincipal'
-        }
-        {
-          roleDefinitionIdOrName: subscriptionResourceId(
-            'Microsoft.Authorization/roleDefinitions',
-            'acdd72a7-3385-48ef-bd42-f606fba81ae7'
-          )
-          principalId: nestedDependencies.outputs.managedIdentityPrincipalId
-          principalType: 'ServicePrincipal'
-        }
-      ]
-      linkedResources: [
-        {
-          resourceId: nestedDependencies.outputs.storageAccountResourceId
-          uniqueName: nestedDependencies.outputs.storageAccountName
-        }
-      ]
       customerManagedKey: {
         keyName: nestedDependencies.outputs.keyVaultKeyName
         keyVaultResourceId: nestedDependencies.outputs.keyVaultResourceId
