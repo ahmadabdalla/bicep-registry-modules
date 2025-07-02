@@ -17,7 +17,7 @@ param serviceShort string = 'dcdcwaf'
 param namePrefix string = '#_namePrefix_#'
 
 @description('Generated. Used as a basis for unique resource names.')
-param baseTime string = 'ahmad'
+param baseTime string = 'kkkk'
 
 // Hardcoded because service not available in all regions
 #disable-next-line no-hardcoded-location

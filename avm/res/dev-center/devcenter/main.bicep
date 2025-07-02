@@ -61,28 +61,28 @@ resource devcenter 'Microsoft.DevCenter/devcenters@2025-02-01' = {
   location: location
   identity: identity
   properties: {
-    ...(!empty(customerManagedKey)
-      ? {
-          encryption: {
-            customerManagedKeyEncryption: {
-              keyEncryptionKeyIdentity: {
-                userAssignedIdentityResourceId: !empty(customerManagedKey.?userAssignedIdentityResourceId)
-                  ? cMKUserAssignedIdentity.id
-                  : null
-                identityType: !empty(customerManagedKey.?userAssignedIdentityResourceId)
-                  ? 'userAssignedIdentity'
-                  : 'systemAssignedIdentity'
-              }
-              keyEncryptionKeyUrl: !empty(customerManagedKey.?keyVersion ?? '')
-                ? '${cMKKeyVault::cMKKey.properties.keyUri}/${customerManagedKey!.?keyVersion}'
-                : (customerManagedKey.?autoRotationEnabled ?? true)
-                    ? cMKKeyVault::cMKKey.properties.keyUri
-                    : cMKKeyVault::cMKKey.properties.keyUriWithVersion
-            }
-          }
-        }
-      : {})
-    //encryption: !empty(customerManagedKey) ? null : null
+    //...(!empty(customerManagedKey)
+    //  ? {
+    //      encryption: {
+    //        customerManagedKeyEncryption: {
+    //          keyEncryptionKeyIdentity: {
+    //            userAssignedIdentityResourceId: !empty(customerManagedKey.?userAssignedIdentityResourceId)
+    //              ? cMKUserAssignedIdentity.id
+    //              : null
+    //            identityType: !empty(customerManagedKey.?userAssignedIdentityResourceId)
+    //              ? 'userAssignedIdentity'
+    //              : 'systemAssignedIdentity'
+    //          }
+    //          keyEncryptionKeyUrl: !empty(customerManagedKey.?keyVersion ?? '')
+    //            ? '${cMKKeyVault::cMKKey.properties.keyUri}/${customerManagedKey!.?keyVersion}'
+    //            : (customerManagedKey.?autoRotationEnabled ?? true)
+    //                ? cMKKeyVault::cMKKey.properties.keyUri
+    //                : cMKKeyVault::cMKKey.properties.keyUriWithVersion
+    //        }
+    //      }
+    //    }
+    //  : {})
+    encryption: !empty(customerManagedKey) ? null : null
     //encryption: !empty(customerManagedKey)
     //  ? {
     //      customerManagedKeyEncryption: {
