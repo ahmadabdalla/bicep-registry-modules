@@ -1133,7 +1133,7 @@ param tags = {
 | [`premiumDataDisks`](#parameter-premiumdatadisks) | string | The setting to enable usage of premium data disks. When its value is "Enabled", creation of standard or premium data disks is allowed. When its value is "Disabled", only creation of standard data disks is allowed. Default is "Disabled". |
 | [`roleAssignments`](#parameter-roleassignments) | array | Array of role assignments to create. |
 | [`schedules`](#parameter-schedules) | array | Schedules to create for the lab. |
-| [`secrets`](#parameter-secrets) | array | Secrets to create for the lab. With Lab Secrets, you can store sensitive data once at the lab level and make it available wherever it's needed.  |
+| [`secrets`](#parameter-secrets) | array | Secrets to create for the lab. With Lab Secrets, you can store sensitive data once at the lab level and make it available wherever it's needed. |
 | [`support`](#parameter-support) | object | The properties of any lab support message associated with this lab. |
 | [`tags`](#parameter-tags) | object | Tags of the resource. |
 | [`virtualnetworks`](#parameter-virtualnetworks) | array | Virtual networks to create for the lab. |
@@ -2257,7 +2257,7 @@ The days of the week for which the schedule is set (e.g. Sunday, Monday, Tuesday
 
 ### Parameter: `secrets`
 
-Secrets to create for the lab. With Lab Secrets, you can store sensitive data once at the lab level and make it available wherever it's needed. 
+Secrets to create for the lab. With Lab Secrets, you can store sensitive data once at the lab level and make it available wherever it's needed.
 
 - Required: No
 - Type: array

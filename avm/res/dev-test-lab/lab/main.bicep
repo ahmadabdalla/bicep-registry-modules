@@ -113,7 +113,7 @@ param artifactsources artifactsourceType[]?
 @description('Optional. Costs to create for the lab.')
 param costs costType?
 
-@description('Optional. Secrets to create for the lab. With Lab Secrets, you can store sensitive data once at the lab level and make it available wherever it\'s needed. ')
+@description('Optional. Secrets to create for the lab. With Lab Secrets, you can store sensitive data once at the lab level and make it available wherever it\'s needed.')
 param secrets secretType[]?
 
 @description('Optional. Enable/Disable usage telemetry for module.')
@@ -600,7 +600,7 @@ type scheduleType = {
 }
 
 @export()
-@description('The type for a secret output.')
+@description('The type for the secret.')
 type secretType = {
   @description('Required. The name of the secret.')
   name: string
