@@ -188,6 +188,15 @@ module testDeployment '../../../main.bicep' = [
           storageAccountResourceId: diagnosticDependencies.outputs.storageAccountResourceId
           workspaceResourceId: diagnosticDependencies.outputs.logAnalyticsWorkspaceResourceId
         }
+        {
+          name: 'logAnalyticsSetting'
+          logCategoriesAndGroups: [
+            {
+              categoryGroup: 'allLogs'
+            }
+          ]
+          workspaceResourceId: diagnosticDependencies.outputs.logAnalyticsWorkspaceResourceId
+        }
       ]
       galleries: [
         {

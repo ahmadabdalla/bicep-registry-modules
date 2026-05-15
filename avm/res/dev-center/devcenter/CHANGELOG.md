@@ -2,6 +2,17 @@
 
 The latest version of the changelog can be found [here](https://github.com/Azure/bicep-registry-modules/blob/main/avm/res/dev-center/devcenter/CHANGELOG.md).
 
+## 0.2.0
+
+### Changes
+
+- Added `diagnosticSettings` parameter to enable diagnostic settings on the Dev Center
+- Extended `max` e2e test to cover multiple diagnostic settings entries (including explicit `logCategoriesAndGroups`)
+
+### Breaking Changes
+
+- None
+
 ## 0.1.2
 
 ### Changes
