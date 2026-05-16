@@ -40,14 +40,17 @@ resource resourceGroup2 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   location: enforcedLocation
 }
 
+// Diagnostics
+// ===========
 module diagnosticDependencies '../../../../../../../utilities/e2e-template-assets/templates/diagnostic.dependencies.bicep' = {
   scope: resourceGroup1
   name: '${uniqueString(deployment().name, enforcedLocation)}-diagnosticDependencies'
   params: {
-    storageAccountName: 'dep${namePrefix}diasa${serviceShort}03'
+    storageAccountName: 'dep${namePrefix}diasa${serviceShort}01'
     logAnalyticsWorkspaceName: 'dep-${namePrefix}-law-${serviceShort}'
-    eventHubNamespaceEventHubName: 'dep-${namePrefix}-evh-${serviceShort}01'
-    eventHubNamespaceName: 'dep-${namePrefix}-evhns-${serviceShort}01'
+    eventHubNamespaceEventHubName: 'dep-${namePrefix}-evh-${serviceShort}'
+    eventHubNamespaceName: 'dep-${namePrefix}-evhns-${serviceShort}'
+    location: enforcedLocation
   }
 }
 

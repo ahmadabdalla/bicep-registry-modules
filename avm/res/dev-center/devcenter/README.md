@@ -186,6 +186,15 @@ module devcenter 'br/public:avm/res/dev-center/devcenter:<version>' = {
         storageAccountResourceId: '<storageAccountResourceId>'
         workspaceResourceId: '<workspaceResourceId>'
       }
+      {
+        logCategoriesAndGroups: [
+          {
+            categoryGroup: 'allLogs'
+          }
+        ]
+        name: 'logAnalyticsSetting'
+        workspaceResourceId: '<workspaceResourceId>'
+      }
     ]
     displayName: 'Dev Center Test'
     environmentTypes: [
@@ -443,6 +452,15 @@ module devcenter 'br/public:avm/res/dev-center/devcenter:<version>' = {
           ],
           "name": "customSetting",
           "storageAccountResourceId": "<storageAccountResourceId>",
+          "workspaceResourceId": "<workspaceResourceId>"
+        },
+        {
+          "logCategoriesAndGroups": [
+            {
+              "categoryGroup": "allLogs"
+            }
+          ],
+          "name": "logAnalyticsSetting",
           "workspaceResourceId": "<workspaceResourceId>"
         }
       ]
@@ -714,6 +732,15 @@ param diagnosticSettings = [
     ]
     name: 'customSetting'
     storageAccountResourceId: '<storageAccountResourceId>'
+    workspaceResourceId: '<workspaceResourceId>'
+  }
+  {
+    logCategoriesAndGroups: [
+      {
+        categoryGroup: 'allLogs'
+      }
+    ]
+    name: 'logAnalyticsSetting'
     workspaceResourceId: '<workspaceResourceId>'
   }
 ]
